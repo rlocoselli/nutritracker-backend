@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: nutrition-mvp-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    autoDeploy: true
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
