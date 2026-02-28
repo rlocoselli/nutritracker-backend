@@ -7,6 +7,9 @@ from flask import Flask, request, jsonify, render_template
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from openai import OpenAI
+from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship, sessionmaker
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB upload limit
@@ -15,6 +18,43 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 client = None
+db_engine = None
+DbSessionLocal = None
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    google_sub: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    meal_analyses: Mapped[list["MealAnalysis"]] = relationship(back_populates="user")
+    recommendations: Mapped[list["RecommendationRecord"]] = relationship(back_populates="user")
+
+
+class MealAnalysis(Base):
+    __tablename__ = "meal_analyses"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    language: Mapped[str] = mapped_column(String(16), nullable=False, default="pt")
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user: Mapped[User] = relationship(back_populates="meal_analyses")
+
+
+class RecommendationRecord(Base):
+    __tablename__ = "recommendations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user: Mapped[User] = relationship(back_populates="recommendations")
 
 
 def get_missing_env_vars() -> list[str]:
@@ -24,6 +64,123 @@ def get_missing_env_vars() -> list[str]:
     if not os.environ.get("GOOGLE_CLIENT_ID"):
         missing.append("GOOGLE_CLIENT_ID")
     return missing
+
+
+def get_missing_db_env_vars() -> list[str]:
+    required_vars = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_PORT"]
+    return [name for name in required_vars if not os.environ.get(name)]
+
+
+def get_database_url() -> str | None:
+    missing_db_env_vars = get_missing_db_env_vars()
+    if missing_db_env_vars:
+        return None
+
+    return (
+        f"postgresql+psycopg2://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
+        f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT', '5432')}/{os.environ.get('DB_NAME')}"
+    )
+
+
+def ensure_database_exists() -> tuple[bool, str | None]:
+    missing_db_env_vars = get_missing_db_env_vars()
+    if missing_db_env_vars:
+        return False, "database_not_configured"
+
+    try:
+        import psycopg2
+        from psycopg2 import sql
+    except Exception:
+        return False, "psycopg2_not_installed"
+
+    db_name = os.environ.get("DB_NAME")
+    maintenance_db = os.environ.get("DB_MAINTENANCE_DB", "postgres")
+
+    try:
+        connection = psycopg2.connect(
+            host=os.environ.get("DB_HOST"),
+            user=os.environ.get("DB_USER"),
+            password=os.environ.get("DB_PASSWORD"),
+            dbname=maintenance_db,
+            port=int(os.environ.get("DB_PORT", "5432")),
+            connect_timeout=5,
+        )
+        connection.autocommit = True
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (db_name,))
+            exists = cursor.fetchone() is not None
+            if not exists:
+                cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
+        connection.close()
+        return True, None
+    except Exception as error:
+        return False, str(error)
+
+
+def initialize_database() -> tuple[bool, str | None]:
+    database_url = get_database_url()
+    if not database_url:
+        return False, "database_not_configured"
+
+    database_exists, ensure_error = ensure_database_exists()
+    if not database_exists:
+        return False, ensure_error
+
+    global db_engine, DbSessionLocal
+    try:
+        db_engine = create_engine(database_url, pool_pre_ping=True)
+        DbSessionLocal = sessionmaker(bind=db_engine)
+        Base.metadata.create_all(bind=db_engine)
+        return True, None
+    except Exception as error:
+        db_engine = None
+        DbSessionLocal = None
+        return False, str(error)
+
+
+def check_database_connection() -> tuple[bool, str | None]:
+    if db_engine is None:
+        return False, "database_not_initialized"
+
+    try:
+        with db_engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return True, None
+    except Exception as error:
+        return False, str(error)
+
+
+def get_or_create_user(session, google_sub: str) -> User:
+    existing_user = session.query(User).filter(User.google_sub == google_sub).first()
+    if existing_user:
+        return existing_user
+
+    new_user = User(google_sub=google_sub)
+    session.add(new_user)
+    session.flush()
+    return new_user
+
+
+def save_meal_analysis(google_sub: str, language: str, payload: dict) -> None:
+    if DbSessionLocal is None:
+        return
+
+    with DbSessionLocal() as session:
+        user = get_or_create_user(session, google_sub)
+        record = MealAnalysis(user_id=user.id, language=language, payload=payload)
+        session.add(record)
+        session.commit()
+
+
+def save_recommendation(google_sub: str, payload: dict) -> None:
+    if DbSessionLocal is None:
+        return
+
+    with DbSessionLocal() as session:
+        user = get_or_create_user(session, google_sub)
+        record = RecommendationRecord(user_id=user.id, payload=payload)
+        session.add(record)
+        session.commit()
 
 
 def get_openai_client() -> OpenAI | None:
@@ -66,6 +223,9 @@ def safe_json_loads(s: str):
         return json.loads(s)
     except Exception:
         return None
+
+
+initialize_database()
 
 
 SYSTEM_PROMPT_ANALYZE = """
@@ -194,6 +354,25 @@ def openapi_spec():
                                 }
                             },
                         }
+                    },
+                }
+            },
+            "/api/health/db": {
+                "get": {
+                    "tags": ["System"],
+                    "summary": "Database connectivity health check",
+                    "responses": {
+                        "200": {
+                            "description": "Database reachable",
+                            "content": {
+                                "application/json": {
+                                    "example": {"ok": True, "database": "connected"}
+                                }
+                            },
+                        },
+                        "503": {
+                            "description": "Database not configured or not reachable",
+                        },
                     },
                 }
             },
@@ -336,6 +515,19 @@ def health():
     return jsonify({"ok": True})
 
 
+@app.get("/api/health/db")
+def health_db():
+    missing_db_env_vars = get_missing_db_env_vars()
+    if missing_db_env_vars:
+        return jsonify({"ok": False, "error": "database_not_configured", "missing_env_vars": missing_db_env_vars}), 503
+
+    is_connected, db_error = check_database_connection()
+    if not is_connected:
+        return jsonify({"ok": False, "error": "database_connection_failed", "details": db_error}), 503
+
+    return jsonify({"ok": True, "database": "connected"})
+
+
 @app.post("/api/analyze-meal")
 def analyze_meal():
     missing_env_vars = get_missing_env_vars()
@@ -398,6 +590,12 @@ def analyze_meal():
     parsed.setdefault("schema_version", "1.0")
     parsed["user_id"] = user_id
     parsed["datetime_utc"] = utc_now_iso()
+
+    try:
+        save_meal_analysis(user_id, lang, parsed)
+    except SQLAlchemyError:
+        pass
+
     return jsonify(parsed)
 
 
@@ -440,6 +638,12 @@ def recommendations():
     parsed.setdefault("schema_version", "1.0")
     parsed["user_id"] = user_id
     parsed["datetime_utc"] = utc_now_iso()
+
+    try:
+        save_recommendation(user_id, parsed)
+    except SQLAlchemyError:
+        pass
+
     return jsonify(parsed)
 
 

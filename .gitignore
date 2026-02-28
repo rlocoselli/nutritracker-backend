@@ -1,0 +1,9 @@
+# Local environment files
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local secret/deploy scripts (never commit)
+deploy/local/
