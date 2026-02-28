@@ -35,24 +35,36 @@ jobs:
             git checkout "${{ github.ref_name }}"
             git reset --hard "origin/${{ github.ref_name }}"
 
-            cat > .env <<EOF
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            EOF
+            {
+              echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+              echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
+              echo "DB_HOST=${{ secrets.DB_HOST }}"
+              echo "DB_USER=${{ secrets.DB_USER }}"
+              echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+              echo "DB_NAME=${{ secrets.DB_NAME }}"
+              echo "DB_PORT=${{ secrets.DB_PORT }}"
 
-            if [ -n "${{ secrets.OPENAI_MODEL }}" ]; then
-              echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
-            else
-              echo "OPENAI_MODEL=gpt-4.1-mini" >> .env
-            fi
+              if [ -n "${{ secrets.OPENAI_MODEL }}" ]; then
+                echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}"
+              else
+                echo "OPENAI_MODEL=gpt-4.1-mini"
+              fi
+            } > .env
+
+            for var_name in OPENAI_API_KEY GOOGLE_CLIENT_ID DB_HOST DB_USER DB_PASSWORD DB_NAME DB_PORT; do
+              if ! grep -q "^${var_name}=" .env; then
+                echo "❌ Missing ${var_name} in generated .env"
+                exit 1
+              fi
+            done
 
             docker compose down --remove-orphans || true
-            docker compose up -d --build
+            if ! docker compose up -d --build; then
+              echo "❌ docker compose up failed. Showing diagnostics."
+              docker compose -f docker-compose.yml ps || true
+              docker compose -f docker-compose.yml logs --tail=300 nutritracker-backend || true
+              exit 1
+            fi
 
             echo "⏳ Waiting for container state"
             for i in $(seq 1 60); do
