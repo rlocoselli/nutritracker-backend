@@ -1,0 +1,84 @@
+name: Deploy GrenobleSki
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+
+            APP_DIR="/root/nutritracker-backend"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              rm -rf "$APP_DIR"
+              git clone "$REPO_URL" "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch --all
+            git checkout "${{ github.ref_name }}"
+            git reset --hard "origin/${{ github.ref_name }}"
+
+            cat > .env <<EOF
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            EOF
+
+            if [ -n "${{ secrets.OPENAI_MODEL }}" ]; then
+              echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
+            else
+              echo "OPENAI_MODEL=gpt-4.1-mini" >> .env
+            fi
+
+            docker compose down --remove-orphans || true
+            docker compose up -d --build
+
+            echo "⏳ Waiting for container state"
+            for i in $(seq 1 60); do
+              CONTAINER_STATE=$(docker inspect --format='{{.State.Status}}' nutritracker-backend 2>/dev/null || echo "missing")
+              RESTART_COUNT=$(docker inspect --format='{{.RestartCount}}' nutritracker-backend 2>/dev/null || echo "0")
+              echo "container state: ${CONTAINER_STATE}, restarts: ${RESTART_COUNT}"
+
+              if [ "${RESTART_COUNT}" -ge 3 ]; then
+                echo "❌ Container unstable (too many restarts). Showing logs."
+                docker compose -f docker-compose.yml ps || true
+                docker compose -f docker-compose.yml logs --tail=200 nutritracker-backend || true
+                exit 1
+              fi
+
+              if [ "${CONTAINER_STATE}" = "running" ]; then
+                break
+              fi
+
+              sleep 5
+            done
+
+            echo "⏳ Waiting for app on http://127.0.0.1:8086/api/health"
+            for i in $(seq 1 60); do
+              if curl -fsS "http://127.0.0.1:8086/api/health" >/dev/null; then
+                echo "✅ App is reachable on port 8086"
+                exit 0
+              fi
+              sleep 5
+            done
+
+            echo "❌ App did not become ready on port 8086"
+            docker compose -f docker-compose.yml ps || true
+            docker compose -f docker-compose.yml logs --tail=200 nutritracker-backend || true
+            exit 1

@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriTracker - Legal</title>
+    <style>
+      :root {
+        --panel: #ffffff;
+        --text: #1b2a1f;
+        --muted: #5d6f62;
+        --primary: #4ea84e;
+        --line: #dce8d8;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #f4f8f2 0%, #eff5ec 40%, #f6f8f3 100%);
+      }
+
+      .container {
+        width: min(1000px, 92%);
+        margin: 0 auto;
+      }
+
+      .topbar {
+        background: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 0;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .back {
+        text-decoration: none;
+        color: #fff;
+        background: var(--primary);
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+
+      select {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+
+      .card {
+        margin: 28px 0;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 26px rgba(43, 75, 43, 0.08);
+      }
+
+      h1 { margin: 0 0 10px; }
+      p, li { color: var(--muted); line-height: 1.6; }
+
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin: 14px 0 8px;
+      }
+
+      .chip {
+        background: #f6fbf4;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 16px 0 24px;
+        color: var(--muted);
+      }
+
+      @media (max-width: 700px) {
+        .meta { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body data-page="{{ page_type }}">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <strong>NutriTracker</strong>
+        <div class="actions">
+          <a class="back" href="/" data-i18n="common.back"></a>
+          <select id="lang-select" aria-label="Language">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+            <option value="pt">Português</option>
+            <option value="it">Italiano</option>
+            <option value="es">Español</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <article class="card">
+        <h1 data-i18n="page.title"></h1>
+        <p data-i18n="page.intro"></p>
+
+        <div class="meta">
+          <div class="chip" data-i18n="page.meta1"></div>
+          <div class="chip" data-i18n="page.meta2"></div>
+        </div>
+
+        <h2 data-i18n="page.section1Title"></h2>
+        <ul>
+          <li data-i18n="page.s1a"></li>
+          <li data-i18n="page.s1b"></li>
+          <li data-i18n="page.s1c"></li>
+        </ul>
+
+        <h2 data-i18n="page.section2Title"></h2>
+        <ul>
+          <li data-i18n="page.s2a"></li>
+          <li data-i18n="page.s2b"></li>
+          <li data-i18n="page.s2c"></li>
+        </ul>
+
+        <h2 data-i18n="page.section3Title"></h2>
+        <ul>
+          <li data-i18n="page.s3a"></li>
+          <li data-i18n="page.s3b"></li>
+          <li data-i18n="page.s3c"></li>
+        </ul>
+      </article>
+    </main>
+
+    <footer>
+      <div class="container" data-i18n="common.footer"></div>
+    </footer>
+
+    <script>
+      const pageType = document.body.dataset.page || "privacy";
+
+      const content = {
+        fr: {
+          common: {
+            back: "Retour à l'accueil",
+            footer: "Pour toute demande RGPD: privacy@nutritracker.app"
+          },
+          privacy: {
+            title: "Politique de confidentialité",
+            intro: "Cette politique explique quelles données sont traitées, pourquoi, et comment vous pouvez exercer vos droits.",
+            meta1: "Responsable: NutriTracker",
+            meta2: "Contact: privacy@nutritracker.app",
+            section1Title: "1. Données traitées",
+            s1a: "Données d'authentification (token Google validé côté serveur).",
+            s1b: "Données de repas envoyées via texte/image pour analyse nutritionnelle.",
+            s1c: "Données techniques minimales nécessaires au fonctionnement du service.",
+            section2Title: "2. Finalité et base légale",
+            s2a: "Fournir une estimation nutritionnelle et des recommandations personnalisées.",
+            s2b: "Base légale principale: consentement explicite de l'utilisateur.",
+            s2c: "Aucune vente de données personnelles à des tiers.",
+            section3Title: "3. Conservation et droits",
+            s3a: "Conservation limitée à la durée nécessaire au service.",
+            s3b: "Droit d'accès, rectification, suppression, limitation et portabilité.",
+            s3c: "Demande de suppression: privacy@nutritracker.app"
+          },
+          cookies: {
+            title: "Politique de cookies",
+            intro: "Cette page décrit l'utilisation des cookies et technologies similaires.",
+            meta1: "Cookies non essentiels: désactivés par défaut",
+            meta2: "Consentement: requis avant activation",
+            section1Title: "1. Cookies nécessaires",
+            s1a: "Utilisés pour maintenir la session et la sécurité basique.",
+            s1b: "Ne servent pas à du ciblage publicitaire.",
+            s1c: "Ne sont pas conservés plus longtemps que nécessaire.",
+            section2Title: "2. Cookies optionnels",
+            s2a: "Seulement après consentement explicite de l'utilisateur.",
+            s2b: "Peuvent être refusés sans bloquer les fonctions essentielles.",
+            s2c: "Le consentement peut être retiré à tout moment.",
+            section3Title: "3. Gestion des préférences",
+            s3a: "Préférences configurables via les paramètres du navigateur.",
+            s3b: "Suppression possible via les outils du navigateur.",
+            s3c: "Contact assistance: privacy@nutritracker.app"
+          },
+          terms: {
+            title: "Conditions générales d'utilisation",
+            intro: "En utilisant l'application, vous acceptez les conditions décrites ci-dessous.",
+            meta1: "Service: API d'analyse nutritionnelle",
+            meta2: "Usage: personnel/professionnel selon la loi locale",
+            section1Title: "1. Nature du service",
+            s1a: "Les résultats fournis sont des estimations automatiques.",
+            s1b: "Le service ne remplace pas un avis médical professionnel.",
+            s1c: "L'utilisateur reste responsable de ses décisions de santé.",
+            section2Title: "2. Obligations utilisateur",
+            s2a: "Ne pas soumettre de contenu illicite ou frauduleux.",
+            s2b: "Ne pas perturber le service ou tenter d'en contourner la sécurité.",
+            s2c: "Respecter la réglementation applicable au traitement de données.",
+            section3Title: "3. Évolutions et responsabilité",
+            s3a: "Le service peut être modifié pour sécurité ou conformité.",
+            s3b: "La disponibilité continue n'est pas garantie sans interruption.",
+            s3c: "Pour toute question: privacy@nutritracker.app"
+          }
+        },
+        en: {
+          common: {
+            back: "Back to home",
+            footer: "GDPR requests: privacy@nutritracker.app"
+          },
+          privacy: {
+            title: "Privacy Policy",
+            intro: "This policy explains what data is processed, why, and how you can exercise your rights.",
+            meta1: "Controller: NutriTracker",
+            meta2: "Contact: privacy@nutritracker.app",
+            section1Title: "1. Data processed",
+            s1a: "Authentication data (Google token validated server-side).",
+            s1b: "Meal data sent by text/image for nutrition analysis.",
+            s1c: "Minimal technical data required for service operation.",
+            section2Title: "2. Purpose and legal basis",
+            s2a: "Provide nutrition estimates and personalized recommendations.",
+            s2b: "Primary legal basis: explicit user consent.",
+            s2c: "No sale of personal data to third parties.",
+            section3Title: "3. Retention and rights",
+            s3a: "Data retained only as long as needed for the service.",
+            s3b: "Rights of access, rectification, deletion, restriction, portability.",
+            s3c: "Deletion request: privacy@nutritracker.app"
+          },
+          cookies: {
+            title: "Cookie Policy",
+            intro: "This page describes the use of cookies and similar technologies.",
+            meta1: "Non-essential cookies: disabled by default",
+            meta2: "Consent: required before activation",
+            section1Title: "1. Necessary cookies",
+            s1a: "Used to keep the session and basic security.",
+            s1b: "Not used for advertising targeting.",
+            s1c: "Not retained longer than necessary.",
+            section2Title: "2. Optional cookies",
+            s2a: "Enabled only after explicit user consent.",
+            s2b: "Can be refused without blocking essential features.",
+            s2c: "Consent can be withdrawn at any time.",
+            section3Title: "3. Preference management",
+            s3a: "Preferences configurable through browser settings.",
+            s3b: "Cookies can be deleted via browser tools.",
+            s3c: "Support contact: privacy@nutritracker.app"
+          },
+          terms: {
+            title: "Terms of Use",
+            intro: "By using the application, you accept the terms described below.",
+            meta1: "Service: nutrition analysis API",
+            meta2: "Use: personal/professional according to local law",
+            section1Title: "1. Nature of the service",
+            s1a: "Outputs are automatic estimates.",
+            s1b: "The service does not replace professional medical advice.",
+            s1c: "Users remain responsible for their health decisions.",
+            section2Title: "2. User obligations",
+            s2a: "Do not submit unlawful or fraudulent content.",
+            s2b: "Do not disrupt the service or bypass security.",
+            s2c: "Comply with applicable data protection regulations.",
+            section3Title: "3. Changes and liability",
+            s3a: "Service may change for security or compliance reasons.",
+            s3b: "Continuous availability is not guaranteed.",
+            s3c: "Questions: privacy@nutritracker.app"
+          }
+        },
+        pt: {
+          common: {
+            back: "Voltar ao início",
+            footer: "Solicitações RGPD: privacy@nutritracker.app"
+          },
+          privacy: {
+            title: "Política de Privacidade",
+            intro: "Esta política explica quais dados são processados, por quê e como você pode exercer seus direitos.",
+            meta1: "Controlador: NutriTracker",
+            meta2: "Contato: privacy@nutritracker.app",
+            section1Title: "1. Dados processados",
+            s1a: "Dados de autenticação (token Google validado no servidor).",
+            s1b: "Dados de refeição enviados por texto/imagem para análise nutricional.",
+            s1c: "Dados técnicos mínimos necessários para o funcionamento do serviço.",
+            section2Title: "2. Finalidade e base legal",
+            s2a: "Fornecer estimativas nutricionais e recomendações personalizadas.",
+            s2b: "Base legal principal: consentimento explícito do usuário.",
+            s2c: "Sem venda de dados pessoais a terceiros.",
+            section3Title: "3. Retenção e direitos",
+            s3a: "Retenção limitada ao período necessário ao serviço.",
+            s3b: "Direitos de acesso, correção, exclusão, limitação e portabilidade.",
+            s3c: "Pedido de exclusão: privacy@nutritracker.app"
+          },
+          cookies: {
+            title: "Política de Cookies",
+            intro: "Esta página descreve o uso de cookies e tecnologias semelhantes.",
+            meta1: "Cookies não essenciais: desativados por padrão",
+            meta2: "Consentimento: obrigatório antes da ativação",
+            section1Title: "1. Cookies necessários",
+            s1a: "Usados para manter sessão e segurança básica.",
+            s1b: "Não usados para publicidade direcionada.",
+            s1c: "Não mantidos além do necessário.",
+            section2Title: "2. Cookies opcionais",
+            s2a: "Ativados somente após consentimento explícito do usuário.",
+            s2b: "Podem ser recusados sem bloquear funções essenciais.",
+            s2c: "O consentimento pode ser retirado a qualquer momento.",
+            section3Title: "3. Gestão de preferências",
+            s3a: "Preferências configuráveis nas opções do navegador.",
+            s3b: "Exclusão possível pelas ferramentas do navegador.",
+            s3c: "Contato suporte: privacy@nutritracker.app"
+          },
+          terms: {
+            title: "Termos de Uso",
+            intro: "Ao usar a aplicação, você aceita os termos descritos abaixo.",
+            meta1: "Serviço: API de análise nutricional",
+            meta2: "Uso: pessoal/profissional conforme lei local",
+            section1Title: "1. Natureza do serviço",
+            s1a: "As respostas fornecidas são estimativas automáticas.",
+            s1b: "O serviço não substitui orientação médica profissional.",
+            s1c: "O usuário permanece responsável por suas decisões de saúde.",
+            section2Title: "2. Obrigações do usuário",
+            s2a: "Não enviar conteúdo ilícito ou fraudulento.",
+            s2b: "Não interferir no serviço nem burlar mecanismos de segurança.",
+            s2c: "Cumprir a regulamentação aplicável de proteção de dados.",
+            section3Title: "3. Alterações e responsabilidade",
+            s3a: "O serviço pode evoluir por motivos de segurança e conformidade.",
+            s3b: "A disponibilidade contínua não é garantida sem interrupções.",
+            s3c: "Dúvidas: privacy@nutritracker.app"
+          }
+        },
+        it: {
+          common: {
+            back: "Torna alla home",
+            footer: "Richieste GDPR: privacy@nutritracker.app"
+          },
+          privacy: {
+            title: "Informativa sulla Privacy",
+            intro: "Questa informativa spiega quali dati vengono trattati, perché e come esercitare i tuoi diritti.",
+            meta1: "Titolare: NutriTracker",
+            meta2: "Contatto: privacy@nutritracker.app",
+            section1Title: "1. Dati trattati",
+            s1a: "Dati di autenticazione (token Google validato lato server).",
+            s1b: "Dati pasto inviati tramite testo/immagine per analisi nutrizionale.",
+            s1c: "Dati tecnici minimi necessari al funzionamento del servizio.",
+            section2Title: "2. Finalità e base giuridica",
+            s2a: "Fornire stime nutrizionali e raccomandazioni personalizzate.",
+            s2b: "Base giuridica principale: consenso esplicito dell'utente.",
+            s2c: "Nessuna vendita di dati personali a terzi.",
+            section3Title: "3. Conservazione e diritti",
+            s3a: "Conservazione limitata al tempo necessario al servizio.",
+            s3b: "Diritti di accesso, rettifica, cancellazione, limitazione e portabilità.",
+            s3c: "Richiesta cancellazione: privacy@nutritracker.app"
+          },
+          cookies: {
+            title: "Cookie Policy",
+            intro: "Questa pagina descrive l'uso di cookie e tecnologie simili.",
+            meta1: "Cookie non essenziali: disattivati di default",
+            meta2: "Consenso: richiesto prima dell'attivazione",
+            section1Title: "1. Cookie necessari",
+            s1a: "Usati per mantenere sessione e sicurezza di base.",
+            s1b: "Non usati per targeting pubblicitario.",
+            s1c: "Non conservati oltre il necessario.",
+            section2Title: "2. Cookie opzionali",
+            s2a: "Attivati solo dopo consenso esplicito dell'utente.",
+            s2b: "Possono essere rifiutati senza bloccare funzioni essenziali.",
+            s2c: "Il consenso può essere revocato in qualsiasi momento.",
+            section3Title: "3. Gestione preferenze",
+            s3a: "Preferenze configurabili nelle impostazioni browser.",
+            s3b: "Cookie eliminabili tramite strumenti del browser.",
+            s3c: "Contatto supporto: privacy@nutritracker.app"
+          },
+          terms: {
+            title: "Termini di Utilizzo",
+            intro: "Usando l'applicazione, accetti i termini descritti di seguito.",
+            meta1: "Servizio: API di analisi nutrizionale",
+            meta2: "Uso: personale/professionale secondo legge locale",
+            section1Title: "1. Natura del servizio",
+            s1a: "I risultati forniti sono stime automatiche.",
+            s1b: "Il servizio non sostituisce un parere medico professionale.",
+            s1c: "L'utente resta responsabile delle proprie decisioni di salute.",
+            section2Title: "2. Obblighi dell'utente",
+            s2a: "Non inviare contenuti illeciti o fraudolenti.",
+            s2b: "Non compromettere il servizio o aggirare la sicurezza.",
+            s2c: "Rispettare la normativa applicabile sulla protezione dati.",
+            section3Title: "3. Modifiche e responsabilità",
+            s3a: "Il servizio può evolvere per motivi di sicurezza o conformità.",
+            s3b: "La disponibilità continua non è garantita.",
+            s3c: "Domande: privacy@nutritracker.app"
+          }
+        },
+        es: {
+          common: {
+            back: "Volver al inicio",
+            footer: "Solicitudes RGPD: privacy@nutritracker.app"
+          },
+          privacy: {
+            title: "Política de Privacidad",
+            intro: "Esta política explica qué datos se procesan, por qué y cómo puedes ejercer tus derechos.",
+            meta1: "Responsable: NutriTracker",
+            meta2: "Contacto: privacy@nutritracker.app",
+            section1Title: "1. Datos tratados",
+            s1a: "Datos de autenticación (token de Google validado en servidor).",
+            s1b: "Datos de comidas enviados por texto/imagen para análisis nutricional.",
+            s1c: "Datos técnicos mínimos necesarios para operar el servicio.",
+            section2Title: "2. Finalidad y base legal",
+            s2a: "Ofrecer estimaciones nutricionales y recomendaciones personalizadas.",
+            s2b: "Base legal principal: consentimiento explícito del usuario.",
+            s2c: "No hay venta de datos personales a terceros.",
+            section3Title: "3. Conservación y derechos",
+            s3a: "Conservación limitada al tiempo necesario del servicio.",
+            s3b: "Derechos de acceso, rectificación, supresión, limitación y portabilidad.",
+            s3c: "Solicitud de eliminación: privacy@nutritracker.app"
+          },
+          cookies: {
+            title: "Política de Cookies",
+            intro: "Esta página describe el uso de cookies y tecnologías similares.",
+            meta1: "Cookies no esenciales: desactivadas por defecto",
+            meta2: "Consentimiento: obligatorio antes de activación",
+            section1Title: "1. Cookies necesarias",
+            s1a: "Se usan para mantener sesión y seguridad básica.",
+            s1b: "No se usan para publicidad segmentada.",
+            s1c: "No se conservan más tiempo del necesario.",
+            section2Title: "2. Cookies opcionales",
+            s2a: "Solo se activan tras consentimiento explícito del usuario.",
+            s2b: "Pueden rechazarse sin bloquear funciones esenciales.",
+            s2c: "El consentimiento puede retirarse en cualquier momento.",
+            section3Title: "3. Gestión de preferencias",
+            s3a: "Preferencias configurables desde ajustes del navegador.",
+            s3b: "Se pueden eliminar cookies desde herramientas del navegador.",
+            s3c: "Contacto soporte: privacy@nutritracker.app"
+          },
+          terms: {
+            title: "Términos de Uso",
+            intro: "Al usar la aplicación, aceptas los términos descritos a continuación.",
+            meta1: "Servicio: API de análisis nutricional",
+            meta2: "Uso: personal/profesional según ley local",
+            section1Title: "1. Naturaleza del servicio",
+            s1a: "Los resultados son estimaciones automáticas.",
+            s1b: "El servicio no sustituye consejo médico profesional.",
+            s1c: "El usuario sigue siendo responsable de sus decisiones de salud.",
+            section2Title: "2. Obligaciones del usuario",
+            s2a: "No enviar contenido ilícito o fraudulento.",
+            s2b: "No interferir con el servicio ni eludir su seguridad.",
+            s2c: "Cumplir la normativa aplicable de protección de datos.",
+            section3Title: "3. Cambios y responsabilidad",
+            s3a: "El servicio puede evolucionar por seguridad o cumplimiento.",
+            s3b: "No se garantiza disponibilidad continua sin interrupciones.",
+            s3c: "Preguntas: privacy@nutritracker.app"
+          }
+        }
+      };
+
+      function setText(key, value) {
+        document.querySelectorAll(`[data-i18n="${key}"]`).forEach((node) => {
+          node.textContent = value;
+        });
+      }
+
+      function applyLanguage(lang) {
+        const selected = content[lang] ? lang : "fr";
+        const dictionary = content[selected];
+        const pageData = dictionary[pageType] || dictionary.privacy;
+
+        document.documentElement.lang = selected;
+        Object.entries(dictionary.common).forEach(([k, v]) => setText(`common.${k}`, v));
+        Object.entries(pageData).forEach(([k, v]) => setText(`page.${k}`, v));
+        localStorage.setItem("lang", selected);
+      }
+
+      const select = document.getElementById("lang-select");
+      const browserLang = (navigator.language || "fr").slice(0, 2).toLowerCase();
+      const initialLang = localStorage.getItem("lang") || (content[browserLang] ? browserLang : "fr");
+      select.value = initialLang;
+      applyLanguage(initialLang);
+
+      select.addEventListener("change", (event) => applyLanguage(event.target.value));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriTracker API</title>
+    <style>
+      :root {
+        --bg: #f4f9f3;
+        --surface: #ffffff;
+        --text: #1d2f21;
+        --muted: #5a6f60;
+        --primary: #4ea84e;
+        --primary-dark: #3d8e3d;
+        --line: #d9e8d8;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 10% 0%, #e2f4df 0%, transparent 44%),
+          radial-gradient(circle at 90% 0%, #d9f0d4 0%, transparent 38%),
+          var(--bg);
+      }
+
+      .container { width: min(1140px, 92%); margin: 0 auto; }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.84);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 12px 0;
+      }
+
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #74c974, #3d8e3d);
+      }
+
+      nav { display: flex; flex-wrap: wrap; gap: 14px; }
+      nav a {
+        text-decoration: none;
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.94rem;
+      }
+      nav a:hover { color: var(--text); }
+
+      .tools { display: flex; align-items: center; gap: 10px; }
+
+      .btn {
+        display: inline-block;
+        text-decoration: none;
+        border-radius: 11px;
+        padding: 11px 14px;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+      .btn-primary { background: var(--primary); color: #fff; }
+      .btn-primary:hover { background: var(--primary-dark); }
+      .btn-outline { background: #fff; color: var(--primary-dark); border-color: var(--line); }
+
+      select {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        border-radius: 9px;
+        padding: 8px 10px;
+      }
+
+      .hero { padding: 42px 0 24px; }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.06fr 0.94fr;
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 10px 28px rgba(53, 96, 53, 0.09);
+      }
+
+      h1, h2, h3 { margin-top: 0; }
+      h1 { font-size: clamp(2rem, 4.1vw, 3.1rem); line-height: 1.12; margin-bottom: 14px; }
+      .lead { color: var(--muted); line-height: 1.62; margin-bottom: 16px; }
+
+      .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .metric {
+        border: 1px solid var(--line);
+        background: #f6fcf5;
+        border-radius: 12px;
+        padding: 11px;
+      }
+      .metric strong { display: block; font-size: 1.2rem; }
+      .metric span { color: var(--muted); font-size: 0.9rem; }
+
+      .hero-image {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .section { padding: 16px 0 8px; }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+      .feature h3 { margin-bottom: 8px; }
+
+      .showcase {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr 1.1fr;
+        gap: 14px;
+        align-items: center;
+      }
+      .showcase img {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .legal-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 26px;
+      }
+
+      .legal-item h3 { font-size: 1.02rem; margin-bottom: 8px; }
+      .legal-item p { color: var(--muted); font-size: 0.93rem; line-height: 1.52; min-height: 76px; }
+      .legal-item a { color: var(--primary-dark); text-decoration: none; font-weight: 700; }
+      .legal-item a:hover { text-decoration: underline; }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 18px 0 26px;
+        color: var(--muted);
+      }
+      .footer-links { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+      .footer-links a { color: var(--primary-dark); text-decoration: none; font-weight: 600; }
+
+      @media (max-width: 980px) {
+        nav { display: none; }
+        .hero-grid, .showcase { grid-template-columns: 1fr; }
+        .feature-grid { grid-template-columns: 1fr; }
+        .legal-grid { grid-template-columns: 1fr 1fr; }
+      }
+
+      @media (max-width: 620px) {
+        .legal-grid, .metrics { grid-template-columns: 1fr; }
+        .tools .btn-outline { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="logo"></div>
+          <span>NutriTracker</span>
+        </div>
+
+        <nav>
+          <a href="#home" data-i18n="nav.home"></a>
+          <a href="#features" data-i18n="nav.features"></a>
+          <a href="#legal" data-i18n="nav.legal"></a>
+          <a href="/api/docs" data-i18n="nav.docs"></a>
+        </nav>
+
+        <div class="tools">
+          <a class="btn btn-outline" href="/api/docs" data-i18n="top.docs"></a>
+          <select id="lang-select" aria-label="Language">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+            <option value="pt">Português</option>
+            <option value="it">Italiano</option>
+            <option value="es">Español</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="home" class="hero">
+        <div class="hero-grid">
+          <article class="card">
+            <h1 data-i18n="hero.title"></h1>
+            <p class="lead" data-i18n="hero.subtitle"></p>
+
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="/api/docs" data-i18n="hero.ctaDocs"></a>
+              <a class="btn btn-outline" href="#legal" data-i18n="hero.ctaLegal"></a>
+            </div>
+
+            <div class="metrics">
+              <div class="metric">
+                <strong>5</strong>
+                <span data-i18n="hero.m1"></span>
+              </div>
+              <div class="metric">
+                <strong>/api</strong>
+                <span data-i18n="hero.m2"></span>
+              </div>
+              <div class="metric">
+                <strong>RGPD</strong>
+                <span data-i18n="hero.m3"></span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <img class="hero-image" src="/static/images/hero-nutrition.svg" alt="Nutrition app illustration" />
+          </article>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <h2 data-i18n="features.title"></h2>
+        <div class="feature-grid">
+          <article class="card feature">
+            <h3 data-i18n="features.f1t"></h3>
+            <p class="lead" data-i18n="features.f1d"></p>
+          </article>
+          <article class="card feature">
+            <h3 data-i18n="features.f2t"></h3>
+            <p class="lead" data-i18n="features.f2d"></p>
+          </article>
+          <article class="card feature">
+            <h3 data-i18n="features.f3t"></h3>
+            <p class="lead" data-i18n="features.f3d"></p>
+          </article>
+        </div>
+
+        <div class="showcase">
+          <img src="/static/images/feature-dashboard.svg" alt="API dashboard illustration" />
+          <article class="card">
+            <h3 data-i18n="api.title"></h3>
+            <p class="lead" data-i18n="api.desc"></p>
+            <ul>
+              <li><strong>GET</strong> <code>/api/health</code></li>
+              <li><strong>POST</strong> <code>/api/analyze-meal</code></li>
+              <li><strong>POST</strong> <code>/api/recommendations</code></li>
+              <li><strong>GET</strong> <code>/api/openapi.json</code></li>
+            </ul>
+            <a class="btn btn-primary" href="/api/docs" data-i18n="api.cta"></a>
+          </article>
+        </div>
+      </section>
+
+      <section id="legal" class="section">
+        <h2 data-i18n="legal.title"></h2>
+        <div class="legal-grid">
+          <article class="card legal-item">
+            <h3 data-i18n="legal.pTitle"></h3>
+            <p data-i18n="legal.pDesc"></p>
+            <a href="/privacy" data-i18n="legal.view"></a>
+          </article>
+          <article class="card legal-item">
+            <h3 data-i18n="legal.cTitle"></h3>
+            <p data-i18n="legal.cDesc"></p>
+            <a href="/cookies" data-i18n="legal.view"></a>
+          </article>
+          <article class="card legal-item">
+            <h3 data-i18n="legal.tTitle"></h3>
+            <p data-i18n="legal.tDesc"></p>
+            <a href="/terms" data-i18n="legal.view"></a>
+          </article>
+          <article class="card legal-item">
+            <h3 data-i18n="legal.dTitle"></h3>
+            <p data-i18n="legal.dDesc"></p>
+            <a href="/api/docs" data-i18n="legal.openDocs"></a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-links">
+          <a href="/privacy" data-i18n="footer.privacy"></a>
+          <a href="/cookies" data-i18n="footer.cookies"></a>
+          <a href="/terms" data-i18n="footer.terms"></a>
+          <a href="/api/docs" data-i18n="footer.docs"></a>
+        </div>
+        <span data-i18n="footer.note"></span>
+      </div>
+    </footer>
+
+    <script>
+      const i18n = {
+        fr: {
+          "nav.home": "Accueil", "nav.features": "Fonctionnalités", "nav.legal": "Légal", "nav.docs": "Doc API",
+          "top.docs": "Swagger API",
+          "hero.title": "API nutritionnelle moderne pour applications web et mobile",
+          "hero.subtitle": "Analyse des repas par texte/image, recommandations personnalisées et base légale RGPD complète, avec documentation Swagger intégrée.",
+          "hero.ctaDocs": "Ouvrir la doc API", "hero.ctaLegal": "Voir la conformité",
+          "hero.m1": "langues supportées", "hero.m2": "base path endpoints", "hero.m3": "cadre conformité",
+          "features.title": "Ce que fait NutriTracker",
+          "features.f1t": "Analyse repas", "features.f1d": "Estime calories, glucides et protéines à partir d’un texte et d’une image optionnelle.",
+          "features.f2t": "Recommandations IA", "features.f2d": "Produit des actions nutritionnelles personnalisées selon l’historique utilisateur.",
+          "features.f3t": "Sécurité API", "features.f3d": "Authentification Bearer Google, validation JSON et réponses d’erreurs claires.",
+          "api.title": "Documentation API & Swagger", "api.desc": "Explore, teste et intègre les endpoints directement depuis Swagger UI et l’OpenAPI JSON.", "api.cta": "Lancer Swagger",
+          "legal.title": "Conformité et documents légaux",
+          "legal.pTitle": "Politique de confidentialité", "legal.pDesc": "Finalités, base légale, minimisation des données et durée de conservation.",
+          "legal.cTitle": "Politique cookies", "legal.cDesc": "Cookies essentiels, consentement et gestion des préférences utilisateur.",
+          "legal.tTitle": "Conditions d’utilisation", "legal.tDesc": "Règles d’usage, limites de responsabilité et évolution du service.",
+          "legal.dTitle": "Documentation API", "legal.dDesc": "Contrat technique OpenAPI, exemples de requêtes et schémas de réponses.",
+          "legal.view": "Voir la page", "legal.openDocs": "Ouvrir Swagger",
+          "footer.privacy": "Confidentialité", "footer.cookies": "Cookies", "footer.terms": "Conditions", "footer.docs": "Doc API",
+          "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES"
+        },
+        en: {
+          "nav.home": "Home", "nav.features": "Features", "nav.legal": "Legal", "nav.docs": "API Docs",
+          "top.docs": "Swagger API",
+          "hero.title": "Modern nutrition API for web and mobile apps",
+          "hero.subtitle": "Meal analysis from text/image, personalized recommendations, and full GDPR legal foundation with integrated Swagger docs.",
+          "hero.ctaDocs": "Open API docs", "hero.ctaLegal": "View compliance",
+          "hero.m1": "supported languages", "hero.m2": "endpoint base path", "hero.m3": "compliance framework",
+          "features.title": "What NutriTracker provides",
+          "features.f1t": "Meal analysis", "features.f1d": "Estimates calories, carbs, and protein from text plus optional image.",
+          "features.f2t": "AI recommendations", "features.f2d": "Generates personalized nutrition actions based on user history.",
+          "features.f3t": "API security", "features.f3d": "Google Bearer authentication, JSON validation, and clear error responses.",
+          "api.title": "API Documentation & Swagger", "api.desc": "Explore, test, and integrate endpoints directly from Swagger UI and OpenAPI JSON.", "api.cta": "Open Swagger",
+          "legal.title": "Compliance and legal documents",
+          "legal.pTitle": "Privacy Policy", "legal.pDesc": "Purpose, legal basis, data minimization, and retention periods.",
+          "legal.cTitle": "Cookie Policy", "legal.cDesc": "Essential cookies, consent, and user preference controls.",
+          "legal.tTitle": "Terms of Use", "legal.tDesc": "Usage rules, liability limits, and service evolution conditions.",
+          "legal.dTitle": "API Documentation", "legal.dDesc": "OpenAPI technical contract, request examples, and response schemas.",
+          "legal.view": "View page", "legal.openDocs": "Open Swagger",
+          "footer.privacy": "Privacy", "footer.cookies": "Cookies", "footer.terms": "Terms", "footer.docs": "API Docs",
+          "footer.note": "© 2026 NutriTracker — multilingual API EN/FR/PT/IT/ES"
+        },
+        pt: {
+          "nav.home": "Início", "nav.features": "Funcionalidades", "nav.legal": "Legal", "nav.docs": "Doc API",
+          "top.docs": "Swagger API",
+          "hero.title": "API nutricional moderna para apps web e mobile",
+          "hero.subtitle": "Análise de refeições por texto/imagem, recomendações personalizadas e base legal RGPD completa com Swagger integrado.",
+          "hero.ctaDocs": "Abrir doc da API", "hero.ctaLegal": "Ver conformidade",
+          "hero.m1": "idiomas suportados", "hero.m2": "caminho base endpoints", "hero.m3": "estrutura de conformidade",
+          "features.title": "O que o NutriTracker oferece",
+          "features.f1t": "Análise de refeição", "features.f1d": "Estima calorias, carboidratos e proteínas por texto e imagem opcional.",
+          "features.f2t": "Recomendações IA", "features.f2d": "Gera ações nutricionais personalizadas com base no histórico do usuário.",
+          "features.f3t": "Segurança da API", "features.f3d": "Autenticação Bearer Google, validação JSON e respostas de erro claras.",
+          "api.title": "Documentação API & Swagger", "api.desc": "Explore, teste e integre endpoints diretamente pelo Swagger UI e OpenAPI JSON.", "api.cta": "Abrir Swagger",
+          "legal.title": "Conformidade e documentos legais",
+          "legal.pTitle": "Política de Privacidade", "legal.pDesc": "Finalidade, base legal, minimização de dados e prazos de retenção.",
+          "legal.cTitle": "Política de Cookies", "legal.cDesc": "Cookies essenciais, consentimento e controle de preferências do usuário.",
+          "legal.tTitle": "Termos de Uso", "legal.tDesc": "Regras de uso, limites de responsabilidade e evolução do serviço.",
+          "legal.dTitle": "Documentação API", "legal.dDesc": "Contrato técnico OpenAPI, exemplos de requisições e esquemas de resposta.",
+          "legal.view": "Ver página", "legal.openDocs": "Abrir Swagger",
+          "footer.privacy": "Privacidade", "footer.cookies": "Cookies", "footer.terms": "Termos", "footer.docs": "Doc API",
+          "footer.note": "© 2026 NutriTracker — API multilíngue EN/FR/PT/IT/ES"
+        },
+        it: {
+          "nav.home": "Home", "nav.features": "Funzionalità", "nav.legal": "Legale", "nav.docs": "Doc API",
+          "top.docs": "Swagger API",
+          "hero.title": "API nutrizionale moderna per app web e mobile",
+          "hero.subtitle": "Analisi pasti da testo/immagine, raccomandazioni personalizzate e base legale GDPR completa con Swagger integrato.",
+          "hero.ctaDocs": "Apri doc API", "hero.ctaLegal": "Vedi conformità",
+          "hero.m1": "lingue supportate", "hero.m2": "percorso base endpoint", "hero.m3": "quadro conformità",
+          "features.title": "Cosa offre NutriTracker",
+          "features.f1t": "Analisi pasto", "features.f1d": "Stima calorie, carboidrati e proteine da testo e immagine opzionale.",
+          "features.f2t": "Raccomandazioni IA", "features.f2d": "Genera azioni nutrizionali personalizzate in base allo storico utente.",
+          "features.f3t": "Sicurezza API", "features.f3d": "Autenticazione Bearer Google, validazione JSON e risposte di errore chiare.",
+          "api.title": "Documentazione API & Swagger", "api.desc": "Esplora, testa e integra endpoint direttamente da Swagger UI e OpenAPI JSON.", "api.cta": "Apri Swagger",
+          "legal.title": "Conformità e documenti legali",
+          "legal.pTitle": "Informativa Privacy", "legal.pDesc": "Finalità, base giuridica, minimizzazione dati e tempi di conservazione.",
+          "legal.cTitle": "Cookie Policy", "legal.cDesc": "Cookie essenziali, consenso e controllo preferenze utente.",
+          "legal.tTitle": "Termini di Utilizzo", "legal.tDesc": "Regole d’uso, limiti di responsabilità e evoluzione del servizio.",
+          "legal.dTitle": "Documentazione API", "legal.dDesc": "Contratto tecnico OpenAPI, esempi richiesta e schemi risposta.",
+          "legal.view": "Vedi pagina", "legal.openDocs": "Apri Swagger",
+          "footer.privacy": "Privacy", "footer.cookies": "Cookie", "footer.terms": "Termini", "footer.docs": "Doc API",
+          "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES"
+        },
+        es: {
+          "nav.home": "Inicio", "nav.features": "Funciones", "nav.legal": "Legal", "nav.docs": "Doc API",
+          "top.docs": "Swagger API",
+          "hero.title": "API nutricional moderna para apps web y móvil",
+          "hero.subtitle": "Análisis de comidas por texto/imagen, recomendaciones personalizadas y base legal RGPD completa con Swagger integrado.",
+          "hero.ctaDocs": "Abrir doc API", "hero.ctaLegal": "Ver cumplimiento",
+          "hero.m1": "idiomas soportados", "hero.m2": "ruta base endpoints", "hero.m3": "marco de cumplimiento",
+          "features.title": "Qué ofrece NutriTracker",
+          "features.f1t": "Análisis de comida", "features.f1d": "Estima calorías, carbohidratos y proteínas desde texto e imagen opcional.",
+          "features.f2t": "Recomendaciones IA", "features.f2d": "Genera acciones nutricionales personalizadas según historial del usuario.",
+          "features.f3t": "Seguridad API", "features.f3d": "Autenticación Bearer Google, validación JSON y errores claros.",
+          "api.title": "Documentación API y Swagger", "api.desc": "Explora, prueba e integra endpoints directamente desde Swagger UI y OpenAPI JSON.", "api.cta": "Abrir Swagger",
+          "legal.title": "Cumplimiento y documentos legales",
+          "legal.pTitle": "Política de Privacidad", "legal.pDesc": "Finalidad, base legal, minimización de datos y periodos de retención.",
+          "legal.cTitle": "Política de Cookies", "legal.cDesc": "Cookies esenciales, consentimiento y control de preferencias del usuario.",
+          "legal.tTitle": "Términos de Uso", "legal.tDesc": "Reglas de uso, límites de responsabilidad y evolución del servicio.",
+          "legal.dTitle": "Documentación API", "legal.dDesc": "Contrato técnico OpenAPI, ejemplos de petición y esquemas de respuesta.",
+          "legal.view": "Ver página", "legal.openDocs": "Abrir Swagger",
+          "footer.privacy": "Privacidad", "footer.cookies": "Cookies", "footer.terms": "Términos", "footer.docs": "Doc API",
+          "footer.note": "© 2026 NutriTracker — API multilingüe EN/FR/PT/IT/ES"
+        }
+      };
+
+      function applyLanguage(lang) {
+        const selected = i18n[lang] ? lang : "fr";
+        const dict = i18n[selected];
+        document.documentElement.lang = selected;
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          const key = node.getAttribute("data-i18n");
+          if (dict[key]) node.textContent = dict[key];
+        });
+        localStorage.setItem("lang", selected);
+      }
+
+      const select = document.getElementById("lang-select");
+      const browserLang = (navigator.language || "fr").slice(0, 2).toLowerCase();
+      const initialLang = localStorage.getItem("lang") || (i18n[browserLang] ? browserLang : "fr");
+      select.value = initialLang;
+      applyLanguage(initialLang);
+      select.addEventListener("change", (event) => applyLanguage(event.target.value));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620" fill="none">
+  <rect width="900" height="620" rx="36" fill="#EEF8EE"/>
+  <circle cx="710" cy="130" r="84" fill="#D7F0D7"/>
+  <circle cx="760" cy="185" r="44" fill="#B9E5B9"/>
+  <circle cx="660" cy="210" r="26" fill="#9EDB9E"/>
+
+  <rect x="80" y="80" width="400" height="88" rx="18" fill="#FFFFFF" stroke="#D9EAD9"/>
+  <rect x="104" y="106" width="200" height="16" rx="8" fill="#3F8F3F"/>
+  <rect x="104" y="132" width="150" height="12" rx="6" fill="#9FC79F"/>
+
+  <rect x="80" y="200" width="740" height="340" rx="26" fill="#FFFFFF" stroke="#D9EAD9"/>
+
+  <circle cx="260" cy="370" r="120" fill="#F8FCF7" stroke="#D9EAD9" stroke-width="6"/>
+  <circle cx="260" cy="370" r="82" fill="#EAF6E8"/>
+
+  <ellipse cx="236" cy="348" rx="20" ry="34" fill="#8CCF61" transform="rotate(-18 236 348)"/>
+  <ellipse cx="295" cy="356" rx="16" ry="26" fill="#74C54A" transform="rotate(25 295 356)"/>
+  <ellipse cx="256" cy="397" rx="34" ry="18" fill="#F2B84B" transform="rotate(8 256 397)"/>
+  <ellipse cx="220" cy="396" rx="18" ry="10" fill="#E76C5C" transform="rotate(-12 220 396)"/>
+  <circle cx="292" cy="398" r="13" fill="#E76C5C"/>
+
+  <rect x="445" y="260" width="328" height="38" rx="10" fill="#F4FAF3"/>
+  <rect x="465" y="273" width="120" height="12" rx="6" fill="#3F8F3F"/>
+  <rect x="605" y="273" width="140" height="12" rx="6" fill="#B6D8B6"/>
+
+  <rect x="445" y="320" width="328" height="38" rx="10" fill="#F4FAF3"/>
+  <rect x="465" y="333" width="88" height="12" rx="6" fill="#4EA84E"/>
+  <rect x="565" y="333" width="180" height="12" rx="6" fill="#CEE6CE"/>
+
+  <rect x="445" y="380" width="328" height="38" rx="10" fill="#F4FAF3"/>
+  <rect x="465" y="393" width="146" height="12" rx="6" fill="#2E7C2E"/>
+  <rect x="624" y="393" width="121" height="12" rx="6" fill="#DCEEDD"/>
+
+  <rect x="445" y="451" width="175" height="52" rx="12" fill="#4EA84E"/>
+  <rect x="635" y="451" width="138" height="52" rx="12" fill="#EAF6E8" stroke="#BFDDBF"/>
+</svg>
