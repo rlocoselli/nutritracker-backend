@@ -150,6 +150,81 @@
         background: #fff;
       }
 
+      .mobile-layout {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .mobile-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .mobile-carousel {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .carousel-viewport {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      .carousel-track {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .carousel-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transform: scale(1.02);
+        transition: opacity 0.35s ease, transform 0.35s ease;
+      }
+
+      .carousel-image.is-active {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .carousel-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .carousel-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .carousel-indicator {
+        color: var(--muted);
+        font-weight: 600;
+      }
+
       .legal-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -172,7 +247,7 @@
 
       @media (max-width: 980px) {
         nav { display: none; }
-        .hero-grid, .showcase { grid-template-columns: 1fr; }
+        .hero-grid, .showcase, .mobile-layout { grid-template-columns: 1fr; }
         .feature-grid { grid-template-columns: 1fr; }
         .legal-grid { grid-template-columns: 1fr 1fr; }
       }
@@ -206,6 +281,9 @@
             <option value="pt">Português</option>
             <option value="it">Italiano</option>
             <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="ro">Română</option>
+            <option value="la">Latina</option>
           </select>
         </div>
       </div>
@@ -225,7 +303,7 @@
 
             <div class="metrics">
               <div class="metric">
-                <strong>5</strong>
+                <strong>8</strong>
                 <span data-i18n="hero.m1"></span>
               </div>
               <div class="metric">
@@ -240,7 +318,7 @@
           </article>
 
           <article class="card">
-            <img class="hero-image" src="/static/images/hero-nutrition.svg" alt="Nutrition app illustration" />
+            <img class="hero-image" src="/static/images/20260301-124153-dashboard.png" alt="Capture du dashboard mobile NutriTracker" />
           </article>
         </div>
       </section>
@@ -274,6 +352,34 @@
               <li><strong>GET</strong> <code>/api/openapi.json</code></li>
             </ul>
             <a class="btn btn-primary" href="/api/docs" data-i18n="api.cta"></a>
+          </article>
+        </div>
+
+        <div class="mobile-layout">
+          <article class="card">
+            <h3 data-i18n="mobile.title"></h3>
+            <p class="lead" data-i18n="mobile.desc"></p>
+            <ul class="mobile-list">
+              <li data-i18n="mobile.b1"></li>
+              <li data-i18n="mobile.b2"></li>
+              <li data-i18n="mobile.b3"></li>
+            </ul>
+          </article>
+
+          <article class="card mobile-carousel" aria-label="Galerie de l'application mobile NutriTracker">
+            <div class="carousel-viewport">
+              <div class="carousel-track" id="mobile-carousel-track">
+                <img class="carousel-image is-active" src="/static/images/20260301-124153-dashboard.png" alt="Dashboard mobile NutriTracker" />
+                <img class="carousel-image" src="/static/images/hero-nutrition.svg" alt="Illustration nutrition mobile" />
+                <img class="carousel-image" src="/static/images/feature-dashboard.svg" alt="Vue fonctionnalites de l'application" />
+              </div>
+            </div>
+
+            <div class="carousel-controls">
+              <button class="carousel-btn" type="button" id="carousel-prev" data-i18n="mobile.prev"></button>
+              <span class="carousel-indicator" id="carousel-indicator">1 / 3</span>
+              <button class="carousel-btn" type="button" id="carousel-next" data-i18n="mobile.next"></button>
+            </div>
           </article>
         </div>
       </section>
@@ -322,8 +428,8 @@
         fr: {
           "nav.home": "Accueil", "nav.features": "Fonctionnalités", "nav.legal": "Légal", "nav.docs": "Doc API",
           "top.docs": "Swagger API",
-          "hero.title": "API nutritionnelle moderne pour applications web et mobile",
-          "hero.subtitle": "Analyse des repas par texte/image, recommandations personnalisées et base légale RGPD complète, avec documentation Swagger intégrée.",
+          "hero.title": "Application mobile NutriTracker et API nutritionnelle moderne",
+          "hero.subtitle": "NutriTracker combine une expérience mobile claire et intuitive avec suivi des repas, visualisation de la progression, pilotage des objectifs quotidiens et recommandations personnalisées. En parallèle, l’application s’appuie sur une API robuste pour l’analyse nutritionnelle, la fiabilité des données et l’intégration rapide avec vos services web et mobile.",
           "hero.ctaDocs": "Ouvrir la doc API", "hero.ctaLegal": "Voir la conformité",
           "hero.m1": "langues supportées", "hero.m2": "base path endpoints", "hero.m3": "cadre conformité",
           "features.title": "Ce que fait NutriTracker",
@@ -331,6 +437,13 @@
           "features.f2t": "Recommandations IA", "features.f2d": "Produit des actions nutritionnelles personnalisées selon l’historique utilisateur.",
           "features.f3t": "Sécurité API", "features.f3d": "Authentification Bearer Google, validation JSON et réponses d’erreurs claires.",
           "api.title": "Documentation API & Swagger", "api.desc": "Explore, teste et intègre les endpoints directement depuis Swagger UI et l’OpenAPI JSON.", "api.cta": "Lancer Swagger",
+          "mobile.title": "NutriTracker mobile en un coup d’œil",
+          "mobile.desc": "La page principale présente désormais le tableau de bord mobile réel et une galerie d’écrans pour illustrer l’usage quotidien de l’app.",
+          "mobile.b1": "Vue dashboard avec résumé nutritionnel et progression.",
+          "mobile.b2": "Navigation simple pensée pour un usage rapide sur smartphone.",
+          "mobile.b3": "Expérience connectée à l’API pour analyses et recommandations personnalisées.",
+          "mobile.prev": "Précédent",
+          "mobile.next": "Suivant",
           "legal.title": "Conformité et documents légaux",
           "legal.pTitle": "Politique de confidentialité", "legal.pDesc": "Finalités, base légale, minimisation des données et durée de conservation.",
           "legal.cTitle": "Politique cookies", "legal.cDesc": "Cookies essentiels, consentement et gestion des préférences utilisateur.",
@@ -338,13 +451,13 @@
           "legal.dTitle": "Documentation API", "legal.dDesc": "Contrat technique OpenAPI, exemples de requêtes et schémas de réponses.",
           "legal.view": "Voir la page", "legal.openDocs": "Ouvrir Swagger",
           "footer.privacy": "Confidentialité", "footer.cookies": "Cookies", "footer.terms": "Conditions", "footer.docs": "Doc API",
-          "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES"
+          "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES/DE/RO/LA"
         },
         en: {
           "nav.home": "Home", "nav.features": "Features", "nav.legal": "Legal", "nav.docs": "API Docs",
           "top.docs": "Swagger API",
-          "hero.title": "Modern nutrition API for web and mobile apps",
-          "hero.subtitle": "Meal analysis from text/image, personalized recommendations, and full GDPR legal foundation with integrated Swagger docs.",
+          "hero.title": "NutriTracker mobile app with a modern nutrition API",
+          "hero.subtitle": "NutriTracker combines a clear and intuitive mobile experience with meal tracking, progress visualization, daily goal management, and personalized recommendations. At the same time, the app relies on a robust API for nutrition analysis, reliable data handling, and fast integration with your web and mobile services.",
           "hero.ctaDocs": "Open API docs", "hero.ctaLegal": "View compliance",
           "hero.m1": "supported languages", "hero.m2": "endpoint base path", "hero.m3": "compliance framework",
           "features.title": "What NutriTracker provides",
@@ -352,6 +465,13 @@
           "features.f2t": "AI recommendations", "features.f2d": "Generates personalized nutrition actions based on user history.",
           "features.f3t": "API security", "features.f3d": "Google Bearer authentication, JSON validation, and clear error responses.",
           "api.title": "API Documentation & Swagger", "api.desc": "Explore, test, and integrate endpoints directly from Swagger UI and OpenAPI JSON.", "api.cta": "Open Swagger",
+          "mobile.title": "NutriTracker mobile at a glance",
+          "mobile.desc": "The homepage now shows the real mobile dashboard and a screen gallery to present day-to-day app usage.",
+          "mobile.b1": "Dashboard view with nutrition summary and progress.",
+          "mobile.b2": "Simple navigation designed for quick smartphone use.",
+          "mobile.b3": "API-connected experience for analysis and personalized recommendations.",
+          "mobile.prev": "Previous",
+          "mobile.next": "Next",
           "legal.title": "Compliance and legal documents",
           "legal.pTitle": "Privacy Policy", "legal.pDesc": "Purpose, legal basis, data minimization, and retention periods.",
           "legal.cTitle": "Cookie Policy", "legal.cDesc": "Essential cookies, consent, and user preference controls.",
@@ -359,13 +479,13 @@
           "legal.dTitle": "API Documentation", "legal.dDesc": "OpenAPI technical contract, request examples, and response schemas.",
           "legal.view": "View page", "legal.openDocs": "Open Swagger",
           "footer.privacy": "Privacy", "footer.cookies": "Cookies", "footer.terms": "Terms", "footer.docs": "API Docs",
-          "footer.note": "© 2026 NutriTracker — multilingual API EN/FR/PT/IT/ES"
+          "footer.note": "© 2026 NutriTracker — multilingual API EN/FR/PT/IT/ES/DE/RO/LA"
         },
         pt: {
           "nav.home": "Início", "nav.features": "Funcionalidades", "nav.legal": "Legal", "nav.docs": "Doc API",
           "top.docs": "Swagger API",
-          "hero.title": "API nutricional moderna para apps web e mobile",
-          "hero.subtitle": "Análise de refeições por texto/imagem, recomendações personalizadas e base legal RGPD completa com Swagger integrado.",
+          "hero.title": "App mobile NutriTracker com API nutricional moderna",
+          "hero.subtitle": "NutriTracker combina uma experiência mobile clara e intuitiva com acompanhamento de refeições, visualização de progresso, gestão de metas diárias e recomendações personalizadas. Ao mesmo tempo, o app utiliza uma API robusta para análise nutricional, confiabilidade dos dados e integração rápida com seus serviços web e mobile.",
           "hero.ctaDocs": "Abrir doc da API", "hero.ctaLegal": "Ver conformidade",
           "hero.m1": "idiomas suportados", "hero.m2": "caminho base endpoints", "hero.m3": "estrutura de conformidade",
           "features.title": "O que o NutriTracker oferece",
@@ -373,6 +493,13 @@
           "features.f2t": "Recomendações IA", "features.f2d": "Gera ações nutricionais personalizadas com base no histórico do usuário.",
           "features.f3t": "Segurança da API", "features.f3d": "Autenticação Bearer Google, validação JSON e respostas de erro claras.",
           "api.title": "Documentação API & Swagger", "api.desc": "Explore, teste e integre endpoints diretamente pelo Swagger UI e OpenAPI JSON.", "api.cta": "Abrir Swagger",
+          "mobile.title": "NutriTracker mobile em resumo",
+          "mobile.desc": "A página principal agora mostra o dashboard real do app mobile e uma galeria de telas para o uso diário.",
+          "mobile.b1": "Visão do dashboard com resumo nutricional e progresso.",
+          "mobile.b2": "Navegação simples para uso rápido no smartphone.",
+          "mobile.b3": "Experiência conectada à API para análises e recomendações personalizadas.",
+          "mobile.prev": "Anterior",
+          "mobile.next": "Próximo",
           "legal.title": "Conformidade e documentos legais",
           "legal.pTitle": "Política de Privacidade", "legal.pDesc": "Finalidade, base legal, minimização de dados e prazos de retenção.",
           "legal.cTitle": "Política de Cookies", "legal.cDesc": "Cookies essenciais, consentimento e controle de preferências do usuário.",
@@ -380,13 +507,13 @@
           "legal.dTitle": "Documentação API", "legal.dDesc": "Contrato técnico OpenAPI, exemplos de requisições e esquemas de resposta.",
           "legal.view": "Ver página", "legal.openDocs": "Abrir Swagger",
           "footer.privacy": "Privacidade", "footer.cookies": "Cookies", "footer.terms": "Termos", "footer.docs": "Doc API",
-          "footer.note": "© 2026 NutriTracker — API multilíngue EN/FR/PT/IT/ES"
+          "footer.note": "© 2026 NutriTracker — API multilíngue EN/FR/PT/IT/ES/DE/RO/LA"
         },
         it: {
           "nav.home": "Home", "nav.features": "Funzionalità", "nav.legal": "Legale", "nav.docs": "Doc API",
           "top.docs": "Swagger API",
-          "hero.title": "API nutrizionale moderna per app web e mobile",
-          "hero.subtitle": "Analisi pasti da testo/immagine, raccomandazioni personalizzate e base legale GDPR completa con Swagger integrato.",
+          "hero.title": "App mobile NutriTracker con API nutrizionale moderna",
+          "hero.subtitle": "NutriTracker unisce un’esperienza mobile chiara e intuitiva con monitoraggio dei pasti, visualizzazione dei progressi, gestione degli obiettivi quotidiani e raccomandazioni personalizzate. Allo stesso tempo, l’app si basa su una API robusta per l’analisi nutrizionale, l’affidabilità dei dati e l’integrazione rapida con i tuoi servizi web e mobile.",
           "hero.ctaDocs": "Apri doc API", "hero.ctaLegal": "Vedi conformità",
           "hero.m1": "lingue supportate", "hero.m2": "percorso base endpoint", "hero.m3": "quadro conformità",
           "features.title": "Cosa offre NutriTracker",
@@ -394,6 +521,13 @@
           "features.f2t": "Raccomandazioni IA", "features.f2d": "Genera azioni nutrizionali personalizzate in base allo storico utente.",
           "features.f3t": "Sicurezza API", "features.f3d": "Autenticazione Bearer Google, validazione JSON e risposte di errore chiare.",
           "api.title": "Documentazione API & Swagger", "api.desc": "Esplora, testa e integra endpoint direttamente da Swagger UI e OpenAPI JSON.", "api.cta": "Apri Swagger",
+          "mobile.title": "NutriTracker mobile in sintesi",
+          "mobile.desc": "La home mostra ora il dashboard reale mobile e una galleria di schermate per illustrare l’uso quotidiano.",
+          "mobile.b1": "Vista dashboard con riepilogo nutrizionale e progressi.",
+          "mobile.b2": "Navigazione semplice per uso rapido su smartphone.",
+          "mobile.b3": "Esperienza connessa all’API per analisi e raccomandazioni personalizzate.",
+          "mobile.prev": "Precedente",
+          "mobile.next": "Successivo",
           "legal.title": "Conformità e documenti legali",
           "legal.pTitle": "Informativa Privacy", "legal.pDesc": "Finalità, base giuridica, minimizzazione dati e tempi di conservazione.",
           "legal.cTitle": "Cookie Policy", "legal.cDesc": "Cookie essenziali, consenso e controllo preferenze utente.",
@@ -401,13 +535,13 @@
           "legal.dTitle": "Documentazione API", "legal.dDesc": "Contratto tecnico OpenAPI, esempi richiesta e schemi risposta.",
           "legal.view": "Vedi pagina", "legal.openDocs": "Apri Swagger",
           "footer.privacy": "Privacy", "footer.cookies": "Cookie", "footer.terms": "Termini", "footer.docs": "Doc API",
-          "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES"
+          "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES/DE/RO/LA"
         },
         es: {
           "nav.home": "Inicio", "nav.features": "Funciones", "nav.legal": "Legal", "nav.docs": "Doc API",
           "top.docs": "Swagger API",
-          "hero.title": "API nutricional moderna para apps web y móvil",
-          "hero.subtitle": "Análisis de comidas por texto/imagen, recomendaciones personalizadas y base legal RGPD completa con Swagger integrado.",
+          "hero.title": "App móvil NutriTracker con API nutricional moderna",
+          "hero.subtitle": "NutriTracker combina una experiencia móvil clara e intuitiva con seguimiento de comidas, visualización del progreso, gestión de objetivos diarios y recomendaciones personalizadas. Al mismo tiempo, la app se apoya en una API robusta para análisis nutricional, fiabilidad de datos e integración rápida con tus servicios web y móviles.",
           "hero.ctaDocs": "Abrir doc API", "hero.ctaLegal": "Ver cumplimiento",
           "hero.m1": "idiomas soportados", "hero.m2": "ruta base endpoints", "hero.m3": "marco de cumplimiento",
           "features.title": "Qué ofrece NutriTracker",
@@ -415,6 +549,13 @@
           "features.f2t": "Recomendaciones IA", "features.f2d": "Genera acciones nutricionales personalizadas según historial del usuario.",
           "features.f3t": "Seguridad API", "features.f3d": "Autenticación Bearer Google, validación JSON y errores claros.",
           "api.title": "Documentación API y Swagger", "api.desc": "Explora, prueba e integra endpoints directamente desde Swagger UI y OpenAPI JSON.", "api.cta": "Abrir Swagger",
+          "mobile.title": "NutriTracker móvil de un vistazo",
+          "mobile.desc": "La página principal ahora muestra el dashboard móvil real y una galería de pantallas para el uso diario.",
+          "mobile.b1": "Vista de dashboard con resumen nutricional y progreso.",
+          "mobile.b2": "Navegación simple pensada para uso rápido en smartphone.",
+          "mobile.b3": "Experiencia conectada a la API para análisis y recomendaciones personalizadas.",
+          "mobile.prev": "Anterior",
+          "mobile.next": "Siguiente",
           "legal.title": "Cumplimiento y documentos legales",
           "legal.pTitle": "Política de Privacidad", "legal.pDesc": "Finalidad, base legal, minimización de datos y periodos de retención.",
           "legal.cTitle": "Política de Cookies", "legal.cDesc": "Cookies esenciales, consentimiento y control de preferencias del usuario.",
@@ -422,7 +563,91 @@
           "legal.dTitle": "Documentación API", "legal.dDesc": "Contrato técnico OpenAPI, ejemplos de petición y esquemas de respuesta.",
           "legal.view": "Ver página", "legal.openDocs": "Abrir Swagger",
           "footer.privacy": "Privacidad", "footer.cookies": "Cookies", "footer.terms": "Términos", "footer.docs": "Doc API",
-          "footer.note": "© 2026 NutriTracker — API multilingüe EN/FR/PT/IT/ES"
+          "footer.note": "© 2026 NutriTracker — API multilingüe EN/FR/PT/IT/ES/DE/RO/LA"
+        },
+        de: {
+          "nav.home": "Startseite", "nav.features": "Funktionen", "nav.legal": "Rechtliches", "nav.docs": "API-Doku",
+          "top.docs": "Swagger API",
+          "hero.title": "NutriTracker Mobile-App mit moderner Ernährungs-API",
+          "hero.subtitle": "NutriTracker kombiniert eine klare und intuitive mobile Erfahrung mit Mahlzeiten-Tracking, Fortschrittsvisualisierung, Verwaltung täglicher Ziele und personalisierten Empfehlungen. Gleichzeitig basiert die App auf einer robusten API für Ernährungsanalysen, zuverlässige Datenverarbeitung und schnelle Integration in Ihre Web- und Mobile-Dienste.",
+          "hero.ctaDocs": "API-Doku öffnen", "hero.ctaLegal": "Compliance anzeigen",
+          "hero.m1": "unterstützte Sprachen", "hero.m2": "Endpoint-Basispfad", "hero.m3": "Compliance-Rahmen",
+          "features.title": "Was NutriTracker bietet",
+          "features.f1t": "Mahlzeitanalyse", "features.f1d": "Schätzt Kalorien, Kohlenhydrate und Proteine aus Text plus optionalem Bild.",
+          "features.f2t": "KI-Empfehlungen", "features.f2d": "Erstellt personalisierte Ernährungsschritte basierend auf dem Nutzerverlauf.",
+          "features.f3t": "API-Sicherheit", "features.f3d": "Google-Bearer-Authentifizierung, JSON-Validierung und klare Fehlermeldungen.",
+          "api.title": "API-Dokumentation & Swagger", "api.desc": "Endpoints direkt über Swagger UI und OpenAPI JSON erkunden, testen und integrieren.", "api.cta": "Swagger öffnen",
+          "mobile.title": "NutriTracker Mobile auf einen Blick",
+          "mobile.desc": "Die Startseite zeigt jetzt das echte mobile Dashboard und eine Galerie von Screens für den täglichen Einsatz.",
+          "mobile.b1": "Dashboard-Ansicht mit Ernährungsübersicht und Fortschritt.",
+          "mobile.b2": "Einfache Navigation für die schnelle Smartphone-Nutzung.",
+          "mobile.b3": "API-verbundenes Erlebnis für Analyse und personalisierte Empfehlungen.",
+          "mobile.prev": "Zurück",
+          "mobile.next": "Weiter",
+          "legal.title": "Compliance und rechtliche Dokumente",
+          "legal.pTitle": "Datenschutzerklärung", "legal.pDesc": "Zweck, Rechtsgrundlage, Datenminimierung und Aufbewahrungsfristen.",
+          "legal.cTitle": "Cookie-Richtlinie", "legal.cDesc": "Essenzielle Cookies, Einwilligung und Verwaltung der Nutzereinstellungen.",
+          "legal.tTitle": "Nutzungsbedingungen", "legal.tDesc": "Nutzungsregeln, Haftungsgrenzen und Entwicklung des Dienstes.",
+          "legal.dTitle": "API-Dokumentation", "legal.dDesc": "OpenAPI-Vertrag, Anfragebeispiele und Antwortschemata.",
+          "legal.view": "Seite anzeigen", "legal.openDocs": "Swagger öffnen",
+          "footer.privacy": "Datenschutz", "footer.cookies": "Cookies", "footer.terms": "Bedingungen", "footer.docs": "API-Doku",
+          "footer.note": "© 2026 NutriTracker — mehrsprachige API EN/FR/PT/IT/ES/DE/RO/LA"
+        },
+        ro: {
+          "nav.home": "Acasă", "nav.features": "Funcționalități", "nav.legal": "Legal", "nav.docs": "Doc API",
+          "top.docs": "Swagger API",
+          "hero.title": "Aplicația mobilă NutriTracker cu API nutrițional modern",
+          "hero.subtitle": "NutriTracker combină o experiență mobilă clară și intuitivă cu monitorizarea meselor, vizualizarea progresului, gestionarea obiectivelor zilnice și recomandări personalizate. În același timp, aplicația se bazează pe un API robust pentru analiză nutrițională, fiabilitatea datelor și integrare rapidă cu serviciile tale web și mobile.",
+          "hero.ctaDocs": "Deschide doc API", "hero.ctaLegal": "Vezi conformitatea",
+          "hero.m1": "limbi suportate", "hero.m2": "cale de bază endpoint", "hero.m3": "cadru de conformitate",
+          "features.title": "Ce oferă NutriTracker",
+          "features.f1t": "Analiza meselor", "features.f1d": "Estimează calorii, carbohidrați și proteine din text plus imagine opțională.",
+          "features.f2t": "Recomandări AI", "features.f2d": "Generează acțiuni nutriționale personalizate pe baza istoricului utilizatorului.",
+          "features.f3t": "Securitate API", "features.f3d": "Autentificare Google Bearer, validare JSON și răspunsuri de eroare clare.",
+          "api.title": "Documentație API & Swagger", "api.desc": "Explorează, testează și integrează endpoint-urile direct din Swagger UI și OpenAPI JSON.", "api.cta": "Deschide Swagger",
+          "mobile.title": "NutriTracker mobil pe scurt",
+          "mobile.desc": "Pagina principală afișează acum dashboard-ul mobil real și o galerie de ecrane pentru utilizarea zilnică.",
+          "mobile.b1": "Vedere dashboard cu rezumat nutrițional și progres.",
+          "mobile.b2": "Navigare simplă pentru utilizare rapidă pe smartphone.",
+          "mobile.b3": "Experiență conectată la API pentru analiză și recomandări personalizate.",
+          "mobile.prev": "Anterior",
+          "mobile.next": "Următor",
+          "legal.title": "Conformitate și documente legale",
+          "legal.pTitle": "Politica de confidențialitate", "legal.pDesc": "Scop, bază legală, minimizarea datelor și perioade de păstrare.",
+          "legal.cTitle": "Politica de cookie-uri", "legal.cDesc": "Cookie-uri esențiale, consimțământ și controlul preferințelor utilizatorului.",
+          "legal.tTitle": "Termeni de utilizare", "legal.tDesc": "Reguli de utilizare, limite de răspundere și evoluția serviciului.",
+          "legal.dTitle": "Documentație API", "legal.dDesc": "Contract tehnic OpenAPI, exemple de cereri și scheme de răspuns.",
+          "legal.view": "Vezi pagina", "legal.openDocs": "Deschide Swagger",
+          "footer.privacy": "Confidențialitate", "footer.cookies": "Cookie-uri", "footer.terms": "Termeni", "footer.docs": "Doc API",
+          "footer.note": "© 2026 NutriTracker — API multilingv EN/FR/PT/IT/ES/DE/RO/LA"
+        },
+        la: {
+          "nav.home": "Initium", "nav.features": "Munera", "nav.legal": "Iuridica", "nav.docs": "Documenta API",
+          "top.docs": "Swagger API",
+          "hero.title": "Applicatio mobilis NutriTracker cum API nutritionis moderno",
+          "hero.subtitle": "NutriTracker experientiam mobilem claram atque intuitivam cum observatione ciborum, progressus visione, administratione propositorum cotidianorum et consiliis personalibus coniungit. Simul applicatio API robusto nititur ad analysin nutritionis, fidem datorum et celerem integrationem cum serviciis web atque mobilibus.",
+          "hero.ctaDocs": "Aperi documenta API", "hero.ctaLegal": "Vide conformitatem",
+          "hero.m1": "linguae sustentatae", "hero.m2": "via principalis endpoint", "hero.m3": "compages conformitatis",
+          "features.title": "Quid NutriTracker praebet",
+          "features.f1t": "Analysis ciborum", "features.f1d": "Calorias, carbohydrata et proteina ex textu cum imagine optionali aestimat.",
+          "features.f2t": "Consilia IA", "features.f2d": "Actiones nutritionales personales ex historia usoris generat.",
+          "features.f3t": "Securitas API", "features.f3d": "Authenticatio Google Bearer, validatio JSON et responsa errorum clara.",
+          "api.title": "Documentatio API & Swagger", "api.desc": "Endpointa directe per Swagger UI et OpenAPI JSON explora, proba atque integra.", "api.cta": "Aperi Swagger",
+          "mobile.title": "NutriTracker mobilis uno intuitu",
+          "mobile.desc": "Pagina principalis nunc tabulam mobilem veram et galeriam imaginum ad usum cotidianum ostendit.",
+          "mobile.b1": "Aspectus tabulae cum summario nutritionis et progressu.",
+          "mobile.b2": "Navigatio simplex ad usum celerem in telephono mobili.",
+          "mobile.b3": "Experientia API coniuncta ad analysin et consilia personalia.",
+          "mobile.prev": "Praecedens",
+          "mobile.next": "Sequens",
+          "legal.title": "Conformitas et documenta iuridica",
+          "legal.pTitle": "Politica secreti", "legal.pDesc": "Finis, basis iuridica, imminutio datorum et tempora conservationis.",
+          "legal.cTitle": "Politica crustulorum", "legal.cDesc": "Crustula necessaria, consensus et moderatio optionum usoris.",
+          "legal.tTitle": "Conditiones usus", "legal.tDesc": "Regulae usus, limites responsabilitatis et evolutio servitii.",
+          "legal.dTitle": "Documentatio API", "legal.dDesc": "Foedus technicum OpenAPI, exempla petitionum et schemata responsorum.",
+          "legal.view": "Vide paginam", "legal.openDocs": "Aperi Swagger",
+          "footer.privacy": "Secretum", "footer.cookies": "Crustula", "footer.terms": "Conditiones", "footer.docs": "Doc API",
+          "footer.note": "© 2026 NutriTracker — API multilinguis EN/FR/PT/IT/ES/DE/RO/LA"
         }
       };
 
@@ -443,6 +668,55 @@
       select.value = initialLang;
       applyLanguage(initialLang);
       select.addEventListener("change", (event) => applyLanguage(event.target.value));
+
+      const carouselImages = Array.from(document.querySelectorAll(".carousel-image"));
+      const carouselIndicator = document.getElementById("carousel-indicator");
+      const carouselViewport = document.querySelector(".carousel-viewport");
+      const prevButton = document.getElementById("carousel-prev");
+      const nextButton = document.getElementById("carousel-next");
+      let activeSlide = 0;
+      let autoplayId = null;
+
+      function renderCarousel(index) {
+        carouselImages.forEach((image, i) => {
+          image.classList.toggle("is-active", i === index);
+        });
+        carouselIndicator.textContent = `${index + 1} / ${carouselImages.length}`;
+      }
+
+      function stepCarousel(step) {
+        activeSlide = (activeSlide + step + carouselImages.length) % carouselImages.length;
+        renderCarousel(activeSlide);
+      }
+
+      function startAutoplay() {
+        if (autoplayId) return;
+        autoplayId = window.setInterval(() => stepCarousel(1), 5000);
+      }
+
+      function stopAutoplay() {
+        if (!autoplayId) return;
+        window.clearInterval(autoplayId);
+        autoplayId = null;
+      }
+
+      prevButton.addEventListener("click", () => stepCarousel(-1));
+      nextButton.addEventListener("click", () => stepCarousel(1));
+      carouselViewport.addEventListener("mouseenter", stopAutoplay);
+      carouselViewport.addEventListener("mouseleave", startAutoplay);
+      prevButton.addEventListener("mouseenter", stopAutoplay);
+      nextButton.addEventListener("mouseenter", stopAutoplay);
+      prevButton.addEventListener("mouseleave", startAutoplay);
+      nextButton.addEventListener("mouseleave", startAutoplay);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          stopAutoplay();
+        } else {
+          startAutoplay();
+        }
+      });
+      renderCarousel(activeSlide);
+      startAutoplay();
     </script>
   </body>
 </html>
