@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="{% block html_lang %}fr{% endblock %}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}NutriTracker{% endblock %}</title>
+    {% block styles %}{% endblock %}
+    <style>
+      .cookie-banner {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        z-index: 1000;
+        background: #ffffff;
+        border: 1px solid #dce8d8;
+        border-radius: 14px;
+        box-shadow: 0 10px 28px rgba(53, 96, 53, 0.16);
+        padding: 14px;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      .cookie-banner[hidden] { display: none; }
+
+      .cookie-banner-title {
+        margin: 0 0 6px;
+        font-size: 1rem;
+        color: #1d2f21;
+      }
+
+      .cookie-banner-text {
+        margin: 0;
+        color: #5a6f60;
+        line-height: 1.45;
+        font-size: 0.92rem;
+      }
+
+      .cookie-banner-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .cookie-btn {
+        border: 1px solid #d9e8d8;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .cookie-btn-primary {
+        background: #4ea84e;
+        color: #fff;
+        border-color: #4ea84e;
+      }
+
+      .cookie-btn-secondary {
+        background: #fff;
+        color: #1d2f21;
+      }
+
+      .cookie-link {
+        color: #3d8e3d;
+        text-decoration: none;
+        font-weight: 700;
+        align-self: center;
+      }
+
+      .cookie-link:hover { text-decoration: underline; }
+
+      @media (max-width: 620px) {
+        .cookie-banner { left: 10px; right: 10px; bottom: 10px; }
+      }
+    </style>
+  </head>
+  <body {% block body_attributes %}{% endblock %}>
+    {% block body %}{% endblock %}
+
+    <aside id="cookie-banner" class="cookie-banner" hidden>
+      <h3 class="cookie-banner-title" data-cookie-i18n="title"></h3>
+      <p class="cookie-banner-text" data-cookie-i18n="text"></p>
+      <div class="cookie-banner-actions">
+        <button type="button" class="cookie-btn cookie-btn-secondary" id="cookie-essential" data-cookie-i18n="essential"></button>
+        <button type="button" class="cookie-btn cookie-btn-primary" id="cookie-accept" data-cookie-i18n="accept"></button>
+        <a class="cookie-link" href="/cookies" data-cookie-i18n="learn"></a>
+      </div>
+    </aside>
+
+    <script>
+      (function () {
+        const COOKIE_NAME = "nutritracker_cookie_consent";
+        const COOKIE_MAX_AGE = 60 * 60 * 24 * 180;
+        const banner = document.getElementById("cookie-banner");
+        const acceptButton = document.getElementById("cookie-accept");
+        const essentialButton = document.getElementById("cookie-essential");
+
+        const translations = {
+          fr: {
+            title: "Cookies et confidentialité",
+            text: "Nous utilisons uniquement les cookies strictement nécessaires par défaut. Les cookies non essentiels ne sont activés qu'après votre consentement.",
+            essential: "Uniquement essentiels",
+            accept: "Accepter",
+            learn: "En savoir plus"
+          },
+          en: {
+            title: "Cookies and privacy",
+            text: "Only strictly necessary cookies are used by default. Non-essential cookies are enabled only after your consent.",
+            essential: "Essential only",
+            accept: "Accept",
+            learn: "Learn more"
+          },
+          pt: {
+            title: "Cookies e privacidade",
+            text: "Usamos apenas cookies estritamente necessários por padrão. Cookies não essenciais só são ativados após seu consentimento.",
+            essential: "Somente essenciais",
+            accept: "Aceitar",
+            learn: "Saiba mais"
+          },
+          it: {
+            title: "Cookie e privacy",
+            text: "Usiamo solo cookie strettamente necessari per impostazione predefinita. I cookie non essenziali sono attivati solo dopo il consenso.",
+            essential: "Solo essenziali",
+            accept: "Accetta",
+            learn: "Scopri di più"
+          },
+          es: {
+            title: "Cookies y privacidad",
+            text: "Solo usamos cookies estrictamente necesarios por defecto. Las cookies no esenciales se activan únicamente con tu consentimiento.",
+            essential: "Solo esenciales",
+            accept: "Aceptar",
+            learn: "Saber más"
+          },
+          de: {
+            title: "Cookies und Datenschutz",
+            text: "Standardmäßig verwenden wir nur unbedingt erforderliche Cookies. Nicht notwendige Cookies werden erst nach Ihrer Einwilligung aktiviert.",
+            essential: "Nur notwendige",
+            accept: "Akzeptieren",
+            learn: "Mehr erfahren"
+          },
+          ro: {
+            title: "Cookie-uri și confidențialitate",
+            text: "Folosim implicit doar cookie-uri strict necesare. Cookie-urile neesențiale sunt activate doar după consimțământul tău.",
+            essential: "Doar esențiale",
+            accept: "Acceptă",
+            learn: "Află mai mult"
+          },
+          la: {
+            title: "Crustula et secretum",
+            text: "Crustula tantum stricte necessaria per defaltum utimur. Crustula non necessaria tantum post consensum tuum activantur.",
+            essential: "Tantum necessaria",
+            accept: "Accipe",
+            learn: "Disce plus"
+          }
+        };
+
+        function getCookie(name) {
+          const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+          return match ? decodeURIComponent(match[1]) : null;
+        }
+
+        function setCookie(name, value, maxAge) {
+          document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
+        }
+
+        function detectLanguage() {
+          const fromStorage = localStorage.getItem("lang");
+          if (fromStorage && translations[fromStorage]) return fromStorage;
+          const fromBrowser = (navigator.language || "fr").slice(0, 2).toLowerCase();
+          return translations[fromBrowser] ? fromBrowser : "fr";
+        }
+
+        function applyLanguage(lang) {
+          const selected = translations[lang] ? lang : "fr";
+          const dict = translations[selected];
+          document.querySelectorAll("[data-cookie-i18n]").forEach((node) => {
+            const key = node.getAttribute("data-cookie-i18n");
+            if (dict[key]) node.textContent = dict[key];
+          });
+        }
+
+        function saveConsent(level) {
+          const payload = JSON.stringify({ level, ts: new Date().toISOString() });
+          setCookie(COOKIE_NAME, payload, COOKIE_MAX_AGE);
+          banner.hidden = true;
+        }
+
+        if (banner) {
+          applyLanguage(detectLanguage());
+          const consent = getCookie(COOKIE_NAME);
+          banner.hidden = Boolean(consent);
+
+          if (acceptButton) acceptButton.addEventListener("click", () => saveConsent("all"));
+          if (essentialButton) essentialButton.addEventListener("click", () => saveConsent("essential"));
+        }
+
+        window.NutriCookieBanner = {
+          setLanguage: applyLanguage,
+          hasConsent: function () {
+            return Boolean(getCookie(COOKIE_NAME));
+          }
+        };
+      })();
+    </script>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,9 +1,8 @@
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NutriTracker API</title>
+{% extends "base.html" %}
+
+{% block title %}NutriTracker API{% endblock %}
+
+{% block styles %}
     <style>
       :root {
         --bg: #f4f9f3;
@@ -121,6 +120,63 @@
       .metric strong { display: block; font-size: 1.2rem; }
       .metric span { color: var(--muted); font-size: 0.9rem; }
 
+      .hero-insights {
+        margin-top: 16px;
+        border: 1px solid var(--line);
+        background: #f6fcf5;
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .hero-insights h3 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+      }
+
+      .hero-insights p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.5;
+      }
+
+      .insight-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .insight-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        padding: 8px;
+      }
+
+      .insight-icon {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        border-radius: 8px;
+        background: #ecf7ea;
+      }
+
+      .insight-item strong {
+        display: block;
+        font-size: 1rem;
+      }
+
+      .insight-item span {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
       .hero-image {
         width: 100%;
         border-radius: 14px;
@@ -227,7 +283,7 @@
 
       .legal-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
         margin-bottom: 26px;
       }
@@ -257,8 +313,9 @@
         .tools .btn-outline { display: none; }
       }
     </style>
-  </head>
-  <body>
+  {% endblock %}
+
+  {% block body %}
     <header class="topbar">
       <div class="container topbar-inner">
         <div class="brand">
@@ -299,6 +356,8 @@
             <div class="hero-actions">
               <a class="btn btn-primary" href="/api/docs" data-i18n="hero.ctaDocs"></a>
               <a class="btn btn-outline" href="#legal" data-i18n="hero.ctaLegal"></a>
+              <a class="btn btn-outline" href="/impact" data-i18n="hero.ctaImpact"></a>
+              <a class="btn btn-primary" href="https://www.paypal.com/donate/?business=rlocoselli%40yahoo.com.br" target="_blank" rel="noopener noreferrer" data-i18n="hero.ctaDonate"></a>
             </div>
 
             <div class="metrics">
@@ -313,6 +372,41 @@
               <div class="metric">
                 <strong>RGPD</strong>
                 <span data-i18n="hero.m3"></span>
+              </div>
+            </div>
+
+            <div class="hero-insights">
+              <h3 data-i18n="hero.insightsTitle"></h3>
+              <p data-i18n="hero.insightsDesc"></p>
+              <div class="insight-grid">
+                <div class="insight-item">
+                  <span class="insight-icon" aria-hidden="true">🌍</span>
+                  <div>
+                    <strong data-i18n="hero.k1v"></strong>
+                    <span data-i18n="hero.k1"></span>
+                  </div>
+                </div>
+                <div class="insight-item">
+                  <span class="insight-icon" aria-hidden="true">🛡️</span>
+                  <div>
+                    <strong data-i18n="hero.k2v"></strong>
+                    <span data-i18n="hero.k2"></span>
+                  </div>
+                </div>
+                <div class="insight-item">
+                  <span class="insight-icon" aria-hidden="true">📷</span>
+                  <div>
+                    <strong data-i18n="hero.k3v"></strong>
+                    <span data-i18n="hero.k3"></span>
+                  </div>
+                </div>
+                <div class="insight-item">
+                  <span class="insight-icon" aria-hidden="true">⚡</span>
+                  <div>
+                    <strong data-i18n="hero.k4v"></strong>
+                    <span data-i18n="hero.k4"></span>
+                  </div>
+                </div>
               </div>
             </div>
           </article>
@@ -403,9 +497,19 @@
             <a href="/terms" data-i18n="legal.view"></a>
           </article>
           <article class="card legal-item">
+            <h3 data-i18n="legal.gTitle"></h3>
+            <p data-i18n="legal.gDesc"></p>
+            <a href="/rgpd" data-i18n="legal.view"></a>
+          </article>
+          <article class="card legal-item">
             <h3 data-i18n="legal.dTitle"></h3>
             <p data-i18n="legal.dDesc"></p>
             <a href="/api/docs" data-i18n="legal.openDocs"></a>
+          </article>
+          <article class="card legal-item">
+            <h3 data-i18n="legal.iTitle"></h3>
+            <p data-i18n="legal.iDesc"></p>
+            <a href="/impact" data-i18n="legal.view"></a>
           </article>
         </div>
       </section>
@@ -415,14 +519,19 @@
       <div class="container">
         <div class="footer-links">
           <a href="/privacy" data-i18n="footer.privacy"></a>
+          <a href="/rgpd" data-i18n="footer.rgpd"></a>
           <a href="/cookies" data-i18n="footer.cookies"></a>
           <a href="/terms" data-i18n="footer.terms"></a>
+          <a href="/impact" data-i18n="footer.impact"></a>
           <a href="/api/docs" data-i18n="footer.docs"></a>
         </div>
         <span data-i18n="footer.note"></span>
       </div>
     </footer>
 
+  {% endblock %}
+
+  {% block scripts %}
     <script>
       const i18n = {
         fr: {
@@ -430,27 +539,35 @@
           "top.docs": "Swagger API",
           "hero.title": "Application mobile NutriTracker et API nutritionnelle moderne",
           "hero.subtitle": "NutriTracker combine une expérience mobile claire et intuitive avec suivi des repas, visualisation de la progression, pilotage des objectifs quotidiens et recommandations personnalisées. En parallèle, l’application s’appuie sur une API robuste pour l’analyse nutritionnelle, la fiabilité des données et l’intégration rapide avec vos services web et mobile.",
-          "hero.ctaDocs": "Ouvrir la doc API", "hero.ctaLegal": "Voir la conformité",
+          "hero.ctaDocs": "Ouvrir la doc API", "hero.ctaLegal": "Voir la conformité", "hero.ctaImpact": "Notre engagement solidaire", "hero.ctaDonate": "Faire un don PayPal",
           "hero.m1": "langues supportées", "hero.m2": "base path endpoints", "hero.m3": "cadre conformité",
+          "hero.insightsTitle": "Repères projet",
+          "hero.insightsDesc": "Vue synthétique des éléments clés de l'application et de son cadre produit.",
+          "hero.k1v": "8", "hero.k1": "langues disponibles",
+          "hero.k2v": "5", "hero.k2": "pages légales",
+          "hero.k3v": "2", "hero.k3": "modes d'analyse (texte/image)",
+          "hero.k4v": "3", "hero.k4": "endpoints nutrition principaux",
           "features.title": "Ce que fait NutriTracker",
-          "features.f1t": "Analyse repas", "features.f1d": "Estime calories, glucides et protéines à partir d’un texte et d’une image optionnelle.",
-          "features.f2t": "Recommandations IA", "features.f2d": "Produit des actions nutritionnelles personnalisées selon l’historique utilisateur.",
-          "features.f3t": "Sécurité API", "features.f3d": "Authentification Bearer Google, validation JSON et réponses d’erreurs claires.",
+          "features.f1t": "Analyse repas", "features.f1d": "Estime calories, glucides et protéines à partir d’un texte et d’une image optionnelle, avec restitution lisible pour un suivi alimentaire quotidien.",
+          "features.f2t": "Recommandations IA", "features.f2d": "Produit des actions nutritionnelles personnalisées selon l’historique utilisateur, les objectifs et les tendances observées dans le temps.",
+          "features.f3t": "Sécurité API", "features.f3d": "Authentification Bearer Google, validation JSON stricte et réponses d’erreurs explicites pour une intégration fiable côté client.",
           "api.title": "Documentation API & Swagger", "api.desc": "Explore, teste et intègre les endpoints directement depuis Swagger UI et l’OpenAPI JSON.", "api.cta": "Lancer Swagger",
           "mobile.title": "NutriTracker mobile en un coup d’œil",
-          "mobile.desc": "La page principale présente désormais le tableau de bord mobile réel et une galerie d’écrans pour illustrer l’usage quotidien de l’app.",
+          "mobile.desc": "La page principale présente désormais le tableau de bord mobile réel et une galerie d’écrans pour illustrer l’usage quotidien de l’app, la lecture rapide des indicateurs nutritionnels et l’accès simple aux fonctionnalités clés sur smartphone.",
           "mobile.b1": "Vue dashboard avec résumé nutritionnel et progression.",
           "mobile.b2": "Navigation simple pensée pour un usage rapide sur smartphone.",
           "mobile.b3": "Expérience connectée à l’API pour analyses et recommandations personnalisées.",
           "mobile.prev": "Précédent",
           "mobile.next": "Suivant",
           "legal.title": "Conformité et documents légaux",
-          "legal.pTitle": "Politique de confidentialité", "legal.pDesc": "Finalités, base légale, minimisation des données et durée de conservation.",
-          "legal.cTitle": "Politique cookies", "legal.cDesc": "Cookies essentiels, consentement et gestion des préférences utilisateur.",
-          "legal.tTitle": "Conditions d’utilisation", "legal.tDesc": "Règles d’usage, limites de responsabilité et évolution du service.",
-          "legal.dTitle": "Documentation API", "legal.dDesc": "Contrat technique OpenAPI, exemples de requêtes et schémas de réponses.",
+          "legal.pTitle": "Politique de confidentialité", "legal.pDesc": "Détaille les finalités de traitement, la base légale applicable, la minimisation des données, les droits utilisateur et les durées de conservation.",
+          "legal.cTitle": "Politique cookies", "legal.cDesc": "Explique les cookies essentiels, le mécanisme de consentement, la gestion des préférences et les options de retrait.",
+          "legal.tTitle": "Conditions d’utilisation", "legal.tDesc": "Précise les règles d’usage du service, les responsabilités de chaque partie, les limites de garantie et les conditions d’évolution.",
+          "legal.dTitle": "Documentation API", "legal.dDesc": "Centralise le contrat technique OpenAPI, les exemples de requêtes/réponses, les formats attendus et les bonnes pratiques d’intégration.",
+          "legal.gTitle": "Notice RGPD (UE)", "legal.gDesc": "Présente vos droits RGPD, les bases légales, les durées de conservation et les voies de contact.",
+          "legal.iTitle": "Engagement associations", "legal.iDesc": "Explique notre soutien aux associations d'enfants malades en France et le cadre d'affectation de la rentabilité.",
           "legal.view": "Voir la page", "legal.openDocs": "Ouvrir Swagger",
-          "footer.privacy": "Confidentialité", "footer.cookies": "Cookies", "footer.terms": "Conditions", "footer.docs": "Doc API",
+          "footer.privacy": "Confidentialité", "footer.rgpd": "RGPD", "footer.cookies": "Cookies", "footer.terms": "Conditions", "footer.impact": "Engagement", "footer.docs": "Doc API",
           "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES/DE/RO/LA"
         },
         en: {
@@ -458,27 +575,35 @@
           "top.docs": "Swagger API",
           "hero.title": "NutriTracker mobile app with a modern nutrition API",
           "hero.subtitle": "NutriTracker combines a clear and intuitive mobile experience with meal tracking, progress visualization, daily goal management, and personalized recommendations. At the same time, the app relies on a robust API for nutrition analysis, reliable data handling, and fast integration with your web and mobile services.",
-          "hero.ctaDocs": "Open API docs", "hero.ctaLegal": "View compliance",
+          "hero.ctaDocs": "Open API docs", "hero.ctaLegal": "View compliance", "hero.ctaImpact": "Our social commitment", "hero.ctaDonate": "Donate with PayPal",
           "hero.m1": "supported languages", "hero.m2": "endpoint base path", "hero.m3": "compliance framework",
+          "hero.insightsTitle": "Project highlights",
+          "hero.insightsDesc": "Quick view of key elements of the app and its product framework.",
+          "hero.k1v": "8", "hero.k1": "available languages",
+          "hero.k2v": "5", "hero.k2": "legal pages",
+          "hero.k3v": "2", "hero.k3": "analysis modes (text/image)",
+          "hero.k4v": "3", "hero.k4": "main nutrition endpoints",
           "features.title": "What NutriTracker provides",
-          "features.f1t": "Meal analysis", "features.f1d": "Estimates calories, carbs, and protein from text plus optional image.",
-          "features.f2t": "AI recommendations", "features.f2d": "Generates personalized nutrition actions based on user history.",
-          "features.f3t": "API security", "features.f3d": "Google Bearer authentication, JSON validation, and clear error responses.",
+          "features.f1t": "Meal analysis", "features.f1d": "Estimates calories, carbs, and protein from text plus an optional image, with readable outputs for daily tracking.",
+          "features.f2t": "AI recommendations", "features.f2d": "Generates personalized nutrition actions based on user history, goals, and trends observed over time.",
+          "features.f3t": "API security", "features.f3d": "Google Bearer authentication, strict JSON validation, and explicit error responses for reliable client integration.",
           "api.title": "API Documentation & Swagger", "api.desc": "Explore, test, and integrate endpoints directly from Swagger UI and OpenAPI JSON.", "api.cta": "Open Swagger",
           "mobile.title": "NutriTracker mobile at a glance",
-          "mobile.desc": "The homepage now shows the real mobile dashboard and a screen gallery to present day-to-day app usage.",
+          "mobile.desc": "The homepage now shows the real mobile dashboard and a screen gallery to present day-to-day app usage, quick reading of nutrition indicators, and easy access to key smartphone features.",
           "mobile.b1": "Dashboard view with nutrition summary and progress.",
           "mobile.b2": "Simple navigation designed for quick smartphone use.",
           "mobile.b3": "API-connected experience for analysis and personalized recommendations.",
           "mobile.prev": "Previous",
           "mobile.next": "Next",
           "legal.title": "Compliance and legal documents",
-          "legal.pTitle": "Privacy Policy", "legal.pDesc": "Purpose, legal basis, data minimization, and retention periods.",
-          "legal.cTitle": "Cookie Policy", "legal.cDesc": "Essential cookies, consent, and user preference controls.",
-          "legal.tTitle": "Terms of Use", "legal.tDesc": "Usage rules, liability limits, and service evolution conditions.",
-          "legal.dTitle": "API Documentation", "legal.dDesc": "OpenAPI technical contract, request examples, and response schemas.",
+          "legal.pTitle": "Privacy Policy", "legal.pDesc": "Details processing purposes, legal basis, data minimization, user rights, and applicable retention periods.",
+          "legal.cTitle": "Cookie Policy", "legal.cDesc": "Explains essential cookies, consent flow, preference management, and available opt-out choices.",
+          "legal.tTitle": "Terms of Use", "legal.tDesc": "Defines service usage rules, party responsibilities, liability limits, and service evolution conditions.",
+          "legal.dTitle": "API Documentation", "legal.dDesc": "Centralizes the OpenAPI technical contract, request/response examples, expected payload formats, and integration best practices.",
+          "legal.gTitle": "GDPR Notice (EU)", "legal.gDesc": "Covers your GDPR rights, legal bases, retention periods, and contact channels.",
+          "legal.iTitle": "Association commitment", "legal.iDesc": "Explains our support for associations helping sick children in France and the profitability allocation framework.",
           "legal.view": "View page", "legal.openDocs": "Open Swagger",
-          "footer.privacy": "Privacy", "footer.cookies": "Cookies", "footer.terms": "Terms", "footer.docs": "API Docs",
+          "footer.privacy": "Privacy", "footer.rgpd": "GDPR", "footer.cookies": "Cookies", "footer.terms": "Terms", "footer.impact": "Commitment", "footer.docs": "API Docs",
           "footer.note": "© 2026 NutriTracker — multilingual API EN/FR/PT/IT/ES/DE/RO/LA"
         },
         pt: {
@@ -486,27 +611,35 @@
           "top.docs": "Swagger API",
           "hero.title": "App mobile NutriTracker com API nutricional moderna",
           "hero.subtitle": "NutriTracker combina uma experiência mobile clara e intuitiva com acompanhamento de refeições, visualização de progresso, gestão de metas diárias e recomendações personalizadas. Ao mesmo tempo, o app utiliza uma API robusta para análise nutricional, confiabilidade dos dados e integração rápida com seus serviços web e mobile.",
-          "hero.ctaDocs": "Abrir doc da API", "hero.ctaLegal": "Ver conformidade",
+          "hero.ctaDocs": "Abrir doc da API", "hero.ctaLegal": "Ver conformidade", "hero.ctaImpact": "Nosso compromisso social", "hero.ctaDonate": "Doar com PayPal",
           "hero.m1": "idiomas suportados", "hero.m2": "caminho base endpoints", "hero.m3": "estrutura de conformidade",
+          "hero.insightsTitle": "Destaques do projeto",
+          "hero.insightsDesc": "Visão rápida dos elementos-chave do app e de sua estrutura de produto.",
+          "hero.k1v": "8", "hero.k1": "idiomas disponíveis",
+          "hero.k2v": "5", "hero.k2": "páginas legais",
+          "hero.k3v": "2", "hero.k3": "modos de análise (texto/imagem)",
+          "hero.k4v": "3", "hero.k4": "endpoints principais de nutrição",
           "features.title": "O que o NutriTracker oferece",
-          "features.f1t": "Análise de refeição", "features.f1d": "Estima calorias, carboidratos e proteínas por texto e imagem opcional.",
-          "features.f2t": "Recomendações IA", "features.f2d": "Gera ações nutricionais personalizadas com base no histórico do usuário.",
-          "features.f3t": "Segurança da API", "features.f3d": "Autenticação Bearer Google, validação JSON e respostas de erro claras.",
+          "features.f1t": "Análise de refeição", "features.f1d": "Estima calorias, carboidratos e proteínas por texto e imagem opcional, com retorno claro para acompanhamento diário.",
+          "features.f2t": "Recomendações IA", "features.f2d": "Gera ações nutricionais personalizadas com base no histórico do usuário, metas e tendências observadas ao longo do tempo.",
+          "features.f3t": "Segurança da API", "features.f3d": "Autenticação Bearer Google, validação JSON rigorosa e respostas de erro explícitas para integração confiável.",
           "api.title": "Documentação API & Swagger", "api.desc": "Explore, teste e integre endpoints diretamente pelo Swagger UI e OpenAPI JSON.", "api.cta": "Abrir Swagger",
           "mobile.title": "NutriTracker mobile em resumo",
-          "mobile.desc": "A página principal agora mostra o dashboard real do app mobile e uma galeria de telas para o uso diário.",
+          "mobile.desc": "A página principal agora mostra o dashboard real do app mobile e uma galeria de telas para ilustrar o uso diário, a leitura rápida dos indicadores nutricionais e o acesso simples aos recursos principais no smartphone.",
           "mobile.b1": "Visão do dashboard com resumo nutricional e progresso.",
           "mobile.b2": "Navegação simples para uso rápido no smartphone.",
           "mobile.b3": "Experiência conectada à API para análises e recomendações personalizadas.",
           "mobile.prev": "Anterior",
           "mobile.next": "Próximo",
           "legal.title": "Conformidade e documentos legais",
-          "legal.pTitle": "Política de Privacidade", "legal.pDesc": "Finalidade, base legal, minimização de dados e prazos de retenção.",
-          "legal.cTitle": "Política de Cookies", "legal.cDesc": "Cookies essenciais, consentimento e controle de preferências do usuário.",
-          "legal.tTitle": "Termos de Uso", "legal.tDesc": "Regras de uso, limites de responsabilidade e evolução do serviço.",
-          "legal.dTitle": "Documentação API", "legal.dDesc": "Contrato técnico OpenAPI, exemplos de requisições e esquemas de resposta.",
+          "legal.pTitle": "Política de Privacidade", "legal.pDesc": "Detalha finalidades de tratamento, base legal aplicável, minimização de dados, direitos do usuário e prazos de retenção.",
+          "legal.cTitle": "Política de Cookies", "legal.cDesc": "Explica cookies essenciais, fluxo de consentimento, gestão de preferências e opções de revogação.",
+          "legal.tTitle": "Termos de Uso", "legal.tDesc": "Define regras de uso do serviço, responsabilidades das partes, limites de responsabilidade e condições de evolução.",
+          "legal.dTitle": "Documentação API", "legal.dDesc": "Reúne o contrato técnico OpenAPI, exemplos de requisição/resposta, formatos esperados e boas práticas de integração.",
+          "legal.gTitle": "Aviso RGPD (UE)", "legal.gDesc": "Apresenta seus direitos RGPD, bases legais, prazos de retenção e canais de contato.",
+          "legal.iTitle": "Compromisso com associações", "legal.iDesc": "Explica o apoio a associações de crianças doentes na França e o quadro de destinação da rentabilidade.",
           "legal.view": "Ver página", "legal.openDocs": "Abrir Swagger",
-          "footer.privacy": "Privacidade", "footer.cookies": "Cookies", "footer.terms": "Termos", "footer.docs": "Doc API",
+          "footer.privacy": "Privacidade", "footer.rgpd": "RGPD", "footer.cookies": "Cookies", "footer.terms": "Termos", "footer.impact": "Compromisso", "footer.docs": "Doc API",
           "footer.note": "© 2026 NutriTracker — API multilíngue EN/FR/PT/IT/ES/DE/RO/LA"
         },
         it: {
@@ -514,27 +647,35 @@
           "top.docs": "Swagger API",
           "hero.title": "App mobile NutriTracker con API nutrizionale moderna",
           "hero.subtitle": "NutriTracker unisce un’esperienza mobile chiara e intuitiva con monitoraggio dei pasti, visualizzazione dei progressi, gestione degli obiettivi quotidiani e raccomandazioni personalizzate. Allo stesso tempo, l’app si basa su una API robusta per l’analisi nutrizionale, l’affidabilità dei dati e l’integrazione rapida con i tuoi servizi web e mobile.",
-          "hero.ctaDocs": "Apri doc API", "hero.ctaLegal": "Vedi conformità",
+          "hero.ctaDocs": "Apri doc API", "hero.ctaLegal": "Vedi conformità", "hero.ctaImpact": "Il nostro impegno sociale", "hero.ctaDonate": "Dona con PayPal",
           "hero.m1": "lingue supportate", "hero.m2": "percorso base endpoint", "hero.m3": "quadro conformità",
+          "hero.insightsTitle": "Dati chiave progetto",
+          "hero.insightsDesc": "Panoramica rapida degli elementi chiave dell'app e del suo quadro di prodotto.",
+          "hero.k1v": "8", "hero.k1": "lingue disponibili",
+          "hero.k2v": "5", "hero.k2": "pagine legali",
+          "hero.k3v": "2", "hero.k3": "modalità analisi (testo/immagine)",
+          "hero.k4v": "3", "hero.k4": "endpoint nutrizione principali",
           "features.title": "Cosa offre NutriTracker",
-          "features.f1t": "Analisi pasto", "features.f1d": "Stima calorie, carboidrati e proteine da testo e immagine opzionale.",
-          "features.f2t": "Raccomandazioni IA", "features.f2d": "Genera azioni nutrizionali personalizzate in base allo storico utente.",
-          "features.f3t": "Sicurezza API", "features.f3d": "Autenticazione Bearer Google, validazione JSON e risposte di errore chiare.",
+          "features.f1t": "Analisi pasto", "features.f1d": "Stima calorie, carboidrati e proteine da testo e immagine opzionale, con output leggibili per il monitoraggio quotidiano.",
+          "features.f2t": "Raccomandazioni IA", "features.f2d": "Genera azioni nutrizionali personalizzate in base allo storico utente, agli obiettivi e ai trend nel tempo.",
+          "features.f3t": "Sicurezza API", "features.f3d": "Autenticazione Bearer Google, validazione JSON rigorosa e risposte di errore esplicite per un’integrazione affidabile.",
           "api.title": "Documentazione API & Swagger", "api.desc": "Esplora, testa e integra endpoint direttamente da Swagger UI e OpenAPI JSON.", "api.cta": "Apri Swagger",
           "mobile.title": "NutriTracker mobile in sintesi",
-          "mobile.desc": "La home mostra ora il dashboard reale mobile e una galleria di schermate per illustrare l’uso quotidiano.",
+          "mobile.desc": "La home mostra ora il dashboard reale mobile e una galleria di schermate per illustrare l’uso quotidiano, la lettura rapida degli indicatori nutrizionali e l’accesso semplice alle funzioni principali su smartphone.",
           "mobile.b1": "Vista dashboard con riepilogo nutrizionale e progressi.",
           "mobile.b2": "Navigazione semplice per uso rapido su smartphone.",
           "mobile.b3": "Esperienza connessa all’API per analisi e raccomandazioni personalizzate.",
           "mobile.prev": "Precedente",
           "mobile.next": "Successivo",
           "legal.title": "Conformità e documenti legali",
-          "legal.pTitle": "Informativa Privacy", "legal.pDesc": "Finalità, base giuridica, minimizzazione dati e tempi di conservazione.",
-          "legal.cTitle": "Cookie Policy", "legal.cDesc": "Cookie essenziali, consenso e controllo preferenze utente.",
-          "legal.tTitle": "Termini di Utilizzo", "legal.tDesc": "Regole d’uso, limiti di responsabilità e evoluzione del servizio.",
-          "legal.dTitle": "Documentazione API", "legal.dDesc": "Contratto tecnico OpenAPI, esempi richiesta e schemi risposta.",
+          "legal.pTitle": "Informativa Privacy", "legal.pDesc": "Descrive finalità del trattamento, base giuridica, minimizzazione dei dati, diritti dell’utente e tempi di conservazione.",
+          "legal.cTitle": "Cookie Policy", "legal.cDesc": "Spiega cookie essenziali, flusso di consenso, gestione preferenze e opzioni di revoca.",
+          "legal.tTitle": "Termini di Utilizzo", "legal.tDesc": "Definisce regole d’uso del servizio, responsabilità delle parti, limiti di responsabilità e condizioni di evoluzione.",
+          "legal.dTitle": "Documentazione API", "legal.dDesc": "Raccoglie il contratto tecnico OpenAPI, esempi richiesta/risposta, formati attesi e buone pratiche di integrazione.",
+          "legal.gTitle": "Informativa GDPR (UE)", "legal.gDesc": "Riassume i tuoi diritti GDPR, basi giuridiche, tempi di conservazione e canali di contatto.",
+          "legal.iTitle": "Impegno con associazioni", "legal.iDesc": "Spiega il sostegno ad associazioni per bambini malati in Francia e il quadro di destinazione della redditività.",
           "legal.view": "Vedi pagina", "legal.openDocs": "Apri Swagger",
-          "footer.privacy": "Privacy", "footer.cookies": "Cookie", "footer.terms": "Termini", "footer.docs": "Doc API",
+          "footer.privacy": "Privacy", "footer.rgpd": "GDPR", "footer.cookies": "Cookie", "footer.terms": "Termini", "footer.impact": "Impegno", "footer.docs": "Doc API",
           "footer.note": "© 2026 NutriTracker — API multilingue EN/FR/PT/IT/ES/DE/RO/LA"
         },
         es: {
@@ -542,27 +683,35 @@
           "top.docs": "Swagger API",
           "hero.title": "App móvil NutriTracker con API nutricional moderna",
           "hero.subtitle": "NutriTracker combina una experiencia móvil clara e intuitiva con seguimiento de comidas, visualización del progreso, gestión de objetivos diarios y recomendaciones personalizadas. Al mismo tiempo, la app se apoya en una API robusta para análisis nutricional, fiabilidad de datos e integración rápida con tus servicios web y móviles.",
-          "hero.ctaDocs": "Abrir doc API", "hero.ctaLegal": "Ver cumplimiento",
+          "hero.ctaDocs": "Abrir doc API", "hero.ctaLegal": "Ver cumplimiento", "hero.ctaImpact": "Nuestro compromiso social", "hero.ctaDonate": "Donar con PayPal",
           "hero.m1": "idiomas soportados", "hero.m2": "ruta base endpoints", "hero.m3": "marco de cumplimiento",
+          "hero.insightsTitle": "Cifras del proyecto",
+          "hero.insightsDesc": "Vista rápida de los elementos clave de la app y su marco de producto.",
+          "hero.k1v": "8", "hero.k1": "idiomas disponibles",
+          "hero.k2v": "5", "hero.k2": "páginas legales",
+          "hero.k3v": "2", "hero.k3": "modos de análisis (texto/imagen)",
+          "hero.k4v": "3", "hero.k4": "endpoints principales de nutrición",
           "features.title": "Qué ofrece NutriTracker",
-          "features.f1t": "Análisis de comida", "features.f1d": "Estima calorías, carbohidratos y proteínas desde texto e imagen opcional.",
-          "features.f2t": "Recomendaciones IA", "features.f2d": "Genera acciones nutricionales personalizadas según historial del usuario.",
-          "features.f3t": "Seguridad API", "features.f3d": "Autenticación Bearer Google, validación JSON y errores claros.",
+          "features.f1t": "Análisis de comida", "features.f1d": "Estima calorías, carbohidratos y proteínas desde texto e imagen opcional, con resultados legibles para el seguimiento diario.",
+          "features.f2t": "Recomendaciones IA", "features.f2d": "Genera acciones nutricionales personalizadas según el historial del usuario, sus objetivos y las tendencias detectadas en el tiempo.",
+          "features.f3t": "Seguridad API", "features.f3d": "Autenticación Bearer de Google, validación JSON estricta y respuestas de error explícitas para una integración fiable.",
           "api.title": "Documentación API y Swagger", "api.desc": "Explora, prueba e integra endpoints directamente desde Swagger UI y OpenAPI JSON.", "api.cta": "Abrir Swagger",
           "mobile.title": "NutriTracker móvil de un vistazo",
-          "mobile.desc": "La página principal ahora muestra el dashboard móvil real y una galería de pantallas para el uso diario.",
+          "mobile.desc": "La página principal ahora muestra el dashboard móvil real y una galería de pantallas para ilustrar el uso diario, la lectura rápida de indicadores nutricionales y el acceso simple a funciones clave en smartphone.",
           "mobile.b1": "Vista de dashboard con resumen nutricional y progreso.",
           "mobile.b2": "Navegación simple pensada para uso rápido en smartphone.",
           "mobile.b3": "Experiencia conectada a la API para análisis y recomendaciones personalizadas.",
           "mobile.prev": "Anterior",
           "mobile.next": "Siguiente",
           "legal.title": "Cumplimiento y documentos legales",
-          "legal.pTitle": "Política de Privacidad", "legal.pDesc": "Finalidad, base legal, minimización de datos y periodos de retención.",
-          "legal.cTitle": "Política de Cookies", "legal.cDesc": "Cookies esenciales, consentimiento y control de preferencias del usuario.",
-          "legal.tTitle": "Términos de Uso", "legal.tDesc": "Reglas de uso, límites de responsabilidad y evolución del servicio.",
-          "legal.dTitle": "Documentación API", "legal.dDesc": "Contrato técnico OpenAPI, ejemplos de petición y esquemas de respuesta.",
+          "legal.pTitle": "Política de Privacidad", "legal.pDesc": "Detalla finalidades del tratamiento, base legal aplicable, minimización de datos, derechos del usuario y periodos de conservación.",
+          "legal.cTitle": "Política de Cookies", "legal.cDesc": "Explica las cookies esenciales, el flujo de consentimiento, la gestión de preferencias y las opciones de revocación.",
+          "legal.tTitle": "Términos de Uso", "legal.tDesc": "Define reglas de uso del servicio, responsabilidades de las partes, límites de responsabilidad y condiciones de evolución.",
+          "legal.dTitle": "Documentación API", "legal.dDesc": "Centraliza el contrato técnico OpenAPI, ejemplos de petición/respuesta, formatos esperados y buenas prácticas de integración.",
+          "legal.gTitle": "Aviso RGPD (UE)", "legal.gDesc": "Presenta tus derechos RGPD, bases legales, plazos de conservación y canales de contacto.",
+          "legal.iTitle": "Compromiso con asociaciones", "legal.iDesc": "Explica nuestro apoyo a asociaciones de niños enfermos en Francia y el marco de destino de la rentabilidad.",
           "legal.view": "Ver página", "legal.openDocs": "Abrir Swagger",
-          "footer.privacy": "Privacidad", "footer.cookies": "Cookies", "footer.terms": "Términos", "footer.docs": "Doc API",
+          "footer.privacy": "Privacidad", "footer.rgpd": "RGPD", "footer.cookies": "Cookies", "footer.terms": "Términos", "footer.impact": "Compromiso", "footer.docs": "Doc API",
           "footer.note": "© 2026 NutriTracker — API multilingüe EN/FR/PT/IT/ES/DE/RO/LA"
         },
         de: {
@@ -570,27 +719,35 @@
           "top.docs": "Swagger API",
           "hero.title": "NutriTracker Mobile-App mit moderner Ernährungs-API",
           "hero.subtitle": "NutriTracker kombiniert eine klare und intuitive mobile Erfahrung mit Mahlzeiten-Tracking, Fortschrittsvisualisierung, Verwaltung täglicher Ziele und personalisierten Empfehlungen. Gleichzeitig basiert die App auf einer robusten API für Ernährungsanalysen, zuverlässige Datenverarbeitung und schnelle Integration in Ihre Web- und Mobile-Dienste.",
-          "hero.ctaDocs": "API-Doku öffnen", "hero.ctaLegal": "Compliance anzeigen",
+          "hero.ctaDocs": "API-Doku öffnen", "hero.ctaLegal": "Compliance anzeigen", "hero.ctaImpact": "Unser soziales Engagement", "hero.ctaDonate": "Mit PayPal spenden",
           "hero.m1": "unterstützte Sprachen", "hero.m2": "Endpoint-Basispfad", "hero.m3": "Compliance-Rahmen",
+          "hero.insightsTitle": "Projektkennzahlen",
+          "hero.insightsDesc": "Schneller Überblick über zentrale App-Elemente und den Produktrahmen.",
+          "hero.k1v": "8", "hero.k1": "verfügbare Sprachen",
+          "hero.k2v": "5", "hero.k2": "rechtliche Seiten",
+          "hero.k3v": "2", "hero.k3": "Analysemodi (Text/Bild)",
+          "hero.k4v": "3", "hero.k4": "zentrale Ernährungs-Endpoints",
           "features.title": "Was NutriTracker bietet",
-          "features.f1t": "Mahlzeitanalyse", "features.f1d": "Schätzt Kalorien, Kohlenhydrate und Proteine aus Text plus optionalem Bild.",
-          "features.f2t": "KI-Empfehlungen", "features.f2d": "Erstellt personalisierte Ernährungsschritte basierend auf dem Nutzerverlauf.",
-          "features.f3t": "API-Sicherheit", "features.f3d": "Google-Bearer-Authentifizierung, JSON-Validierung und klare Fehlermeldungen.",
+          "features.f1t": "Mahlzeitanalyse", "features.f1d": "Schätzt Kalorien, Kohlenhydrate und Proteine aus Text plus optionalem Bild und liefert gut lesbare Ergebnisse für das tägliche Tracking.",
+          "features.f2t": "KI-Empfehlungen", "features.f2d": "Erstellt personalisierte Ernährungsschritte auf Basis von Nutzerverlauf, Zielen und zeitlichen Trends.",
+          "features.f3t": "API-Sicherheit", "features.f3d": "Google-Bearer-Authentifizierung, strenge JSON-Validierung und eindeutige Fehlermeldungen für eine zuverlässige Integration.",
           "api.title": "API-Dokumentation & Swagger", "api.desc": "Endpoints direkt über Swagger UI und OpenAPI JSON erkunden, testen und integrieren.", "api.cta": "Swagger öffnen",
           "mobile.title": "NutriTracker Mobile auf einen Blick",
-          "mobile.desc": "Die Startseite zeigt jetzt das echte mobile Dashboard und eine Galerie von Screens für den täglichen Einsatz.",
+          "mobile.desc": "Die Startseite zeigt jetzt das echte mobile Dashboard und eine Galerie von Screens, um die tägliche Nutzung, das schnelle Erfassen von Ernährungskennzahlen und den einfachen Zugriff auf zentrale Smartphone-Funktionen darzustellen.",
           "mobile.b1": "Dashboard-Ansicht mit Ernährungsübersicht und Fortschritt.",
           "mobile.b2": "Einfache Navigation für die schnelle Smartphone-Nutzung.",
           "mobile.b3": "API-verbundenes Erlebnis für Analyse und personalisierte Empfehlungen.",
           "mobile.prev": "Zurück",
           "mobile.next": "Weiter",
           "legal.title": "Compliance und rechtliche Dokumente",
-          "legal.pTitle": "Datenschutzerklärung", "legal.pDesc": "Zweck, Rechtsgrundlage, Datenminimierung und Aufbewahrungsfristen.",
-          "legal.cTitle": "Cookie-Richtlinie", "legal.cDesc": "Essenzielle Cookies, Einwilligung und Verwaltung der Nutzereinstellungen.",
-          "legal.tTitle": "Nutzungsbedingungen", "legal.tDesc": "Nutzungsregeln, Haftungsgrenzen und Entwicklung des Dienstes.",
-          "legal.dTitle": "API-Dokumentation", "legal.dDesc": "OpenAPI-Vertrag, Anfragebeispiele und Antwortschemata.",
+          "legal.pTitle": "Datenschutzerklärung", "legal.pDesc": "Beschreibt Verarbeitungszwecke, Rechtsgrundlage, Datenminimierung, Nutzerrechte und geltende Aufbewahrungsfristen.",
+          "legal.cTitle": "Cookie-Richtlinie", "legal.cDesc": "Erklärt essenzielle Cookies, Einwilligungsablauf, Präferenzverwaltung und verfügbare Widerrufsoptionen.",
+          "legal.tTitle": "Nutzungsbedingungen", "legal.tDesc": "Definiert Nutzungsregeln des Dienstes, Verantwortlichkeiten der Parteien, Haftungsgrenzen und Bedingungen der Weiterentwicklung.",
+          "legal.dTitle": "API-Dokumentation", "legal.dDesc": "Bündelt den technischen OpenAPI-Vertrag, Anfrage-/Antwortbeispiele, erwartete Formate und Integrations-Best-Practices.",
+          "legal.gTitle": "DSGVO-Hinweis (EU)", "legal.gDesc": "Erläutert Ihre DSGVO-Rechte, Rechtsgrundlagen, Aufbewahrungsfristen und Kontaktwege.",
+          "legal.iTitle": "Engagement für Vereine", "legal.iDesc": "Erklärt unsere Unterstützung von Vereinen für kranke Kinder in Frankreich und den Rahmen der Rentabilitätsverwendung.",
           "legal.view": "Seite anzeigen", "legal.openDocs": "Swagger öffnen",
-          "footer.privacy": "Datenschutz", "footer.cookies": "Cookies", "footer.terms": "Bedingungen", "footer.docs": "API-Doku",
+          "footer.privacy": "Datenschutz", "footer.rgpd": "DSGVO", "footer.cookies": "Cookies", "footer.terms": "Bedingungen", "footer.impact": "Engagement", "footer.docs": "API-Doku",
           "footer.note": "© 2026 NutriTracker — mehrsprachige API EN/FR/PT/IT/ES/DE/RO/LA"
         },
         ro: {
@@ -598,27 +755,35 @@
           "top.docs": "Swagger API",
           "hero.title": "Aplicația mobilă NutriTracker cu API nutrițional modern",
           "hero.subtitle": "NutriTracker combină o experiență mobilă clară și intuitivă cu monitorizarea meselor, vizualizarea progresului, gestionarea obiectivelor zilnice și recomandări personalizate. În același timp, aplicația se bazează pe un API robust pentru analiză nutrițională, fiabilitatea datelor și integrare rapidă cu serviciile tale web și mobile.",
-          "hero.ctaDocs": "Deschide doc API", "hero.ctaLegal": "Vezi conformitatea",
+          "hero.ctaDocs": "Deschide doc API", "hero.ctaLegal": "Vezi conformitatea", "hero.ctaImpact": "Angajamentul nostru social", "hero.ctaDonate": "Donează prin PayPal",
           "hero.m1": "limbi suportate", "hero.m2": "cale de bază endpoint", "hero.m3": "cadru de conformitate",
+          "hero.insightsTitle": "Repere proiect",
+          "hero.insightsDesc": "Vedere rapidă asupra elementelor cheie ale aplicației și cadrului de produs.",
+          "hero.k1v": "8", "hero.k1": "limbi disponibile",
+          "hero.k2v": "5", "hero.k2": "pagini legale",
+          "hero.k3v": "2", "hero.k3": "moduri analiză (text/imagine)",
+          "hero.k4v": "3", "hero.k4": "endpoint-uri nutriție principale",
           "features.title": "Ce oferă NutriTracker",
-          "features.f1t": "Analiza meselor", "features.f1d": "Estimează calorii, carbohidrați și proteine din text plus imagine opțională.",
-          "features.f2t": "Recomandări AI", "features.f2d": "Generează acțiuni nutriționale personalizate pe baza istoricului utilizatorului.",
-          "features.f3t": "Securitate API", "features.f3d": "Autentificare Google Bearer, validare JSON și răspunsuri de eroare clare.",
+          "features.f1t": "Analiza meselor", "features.f1d": "Estimează calorii, carbohidrați și proteine din text plus imagine opțională, cu rezultate clare pentru monitorizare zilnică.",
+          "features.f2t": "Recomandări AI", "features.f2d": "Generează acțiuni nutriționale personalizate pe baza istoricului utilizatorului, obiectivelor și tendințelor observate în timp.",
+          "features.f3t": "Securitate API", "features.f3d": "Autentificare Google Bearer, validare JSON strictă și răspunsuri de eroare explicite pentru integrare fiabilă.",
           "api.title": "Documentație API & Swagger", "api.desc": "Explorează, testează și integrează endpoint-urile direct din Swagger UI și OpenAPI JSON.", "api.cta": "Deschide Swagger",
           "mobile.title": "NutriTracker mobil pe scurt",
-          "mobile.desc": "Pagina principală afișează acum dashboard-ul mobil real și o galerie de ecrane pentru utilizarea zilnică.",
+          "mobile.desc": "Pagina principală afișează acum dashboard-ul mobil real și o galerie de ecrane pentru a ilustra utilizarea zilnică, citirea rapidă a indicatorilor nutriționali și accesul simplu la funcțiile esențiale pe smartphone.",
           "mobile.b1": "Vedere dashboard cu rezumat nutrițional și progres.",
           "mobile.b2": "Navigare simplă pentru utilizare rapidă pe smartphone.",
           "mobile.b3": "Experiență conectată la API pentru analiză și recomandări personalizate.",
           "mobile.prev": "Anterior",
           "mobile.next": "Următor",
           "legal.title": "Conformitate și documente legale",
-          "legal.pTitle": "Politica de confidențialitate", "legal.pDesc": "Scop, bază legală, minimizarea datelor și perioade de păstrare.",
-          "legal.cTitle": "Politica de cookie-uri", "legal.cDesc": "Cookie-uri esențiale, consimțământ și controlul preferințelor utilizatorului.",
-          "legal.tTitle": "Termeni de utilizare", "legal.tDesc": "Reguli de utilizare, limite de răspundere și evoluția serviciului.",
-          "legal.dTitle": "Documentație API", "legal.dDesc": "Contract tehnic OpenAPI, exemple de cereri și scheme de răspuns.",
+          "legal.pTitle": "Politica de confidențialitate", "legal.pDesc": "Detaliază scopurile prelucrării, baza legală aplicabilă, minimizarea datelor, drepturile utilizatorului și perioadele de păstrare.",
+          "legal.cTitle": "Politica de cookie-uri", "legal.cDesc": "Explică cookie-urile esențiale, fluxul de consimțământ, gestionarea preferințelor și opțiunile de retragere.",
+          "legal.tTitle": "Termeni de utilizare", "legal.tDesc": "Definește regulile de utilizare ale serviciului, responsabilitățile părților, limitele de răspundere și condițiile de evoluție.",
+          "legal.dTitle": "Documentație API", "legal.dDesc": "Centralizează contractul tehnic OpenAPI, exemple de cereri/răspunsuri, formatele așteptate și bune practici de integrare.",
+          "legal.gTitle": "Notificare RGPD (UE)", "legal.gDesc": "Prezintă drepturile RGPD, bazele legale, perioadele de păstrare și canalele de contact.",
+          "legal.iTitle": "Angajament pentru asociații", "legal.iDesc": "Explică sprijinul pentru asociații ale copiilor bolnavi din Franța și cadrul de alocare a rentabilității.",
           "legal.view": "Vezi pagina", "legal.openDocs": "Deschide Swagger",
-          "footer.privacy": "Confidențialitate", "footer.cookies": "Cookie-uri", "footer.terms": "Termeni", "footer.docs": "Doc API",
+          "footer.privacy": "Confidențialitate", "footer.rgpd": "RGPD", "footer.cookies": "Cookie-uri", "footer.terms": "Termeni", "footer.impact": "Angajament", "footer.docs": "Doc API",
           "footer.note": "© 2026 NutriTracker — API multilingv EN/FR/PT/IT/ES/DE/RO/LA"
         },
         la: {
@@ -626,27 +791,35 @@
           "top.docs": "Swagger API",
           "hero.title": "Applicatio mobilis NutriTracker cum API nutritionis moderno",
           "hero.subtitle": "NutriTracker experientiam mobilem claram atque intuitivam cum observatione ciborum, progressus visione, administratione propositorum cotidianorum et consiliis personalibus coniungit. Simul applicatio API robusto nititur ad analysin nutritionis, fidem datorum et celerem integrationem cum serviciis web atque mobilibus.",
-          "hero.ctaDocs": "Aperi documenta API", "hero.ctaLegal": "Vide conformitatem",
+          "hero.ctaDocs": "Aperi documenta API", "hero.ctaLegal": "Vide conformitatem", "hero.ctaImpact": "Officium sociale nostrum", "hero.ctaDonate": "Per PayPal dona",
           "hero.m1": "linguae sustentatae", "hero.m2": "via principalis endpoint", "hero.m3": "compages conformitatis",
+          "hero.insightsTitle": "Signa propositi",
+          "hero.insightsDesc": "Conspectus celer de rebus principalibus applicationis et compage producti.",
+          "hero.k1v": "8", "hero.k1": "linguae disponibles",
+          "hero.k2v": "5", "hero.k2": "paginae iuridicae",
+          "hero.k3v": "2", "hero.k3": "modi analysis (textus/imago)",
+          "hero.k4v": "3", "hero.k4": "endpointa nutritionis principalia",
           "features.title": "Quid NutriTracker praebet",
-          "features.f1t": "Analysis ciborum", "features.f1d": "Calorias, carbohydrata et proteina ex textu cum imagine optionali aestimat.",
-          "features.f2t": "Consilia IA", "features.f2d": "Actiones nutritionales personales ex historia usoris generat.",
-          "features.f3t": "Securitas API", "features.f3d": "Authenticatio Google Bearer, validatio JSON et responsa errorum clara.",
+          "features.f1t": "Analysis ciborum", "features.f1d": "Calorias, carbohydrata et proteina ex textu cum imagine optionali aestimat atque exitus perspicuos ad cotidianam observationem reddit.",
+          "features.f2t": "Consilia IA", "features.f2d": "Actiones nutritionales personales ex historia usoris, propositis et inclinationibus per tempus visis generat.",
+          "features.f3t": "Securitas API", "features.f3d": "Authenticatio Google Bearer, validatio JSON stricta et responsa errorum explicita ad integrationem fidelem.",
           "api.title": "Documentatio API & Swagger", "api.desc": "Endpointa directe per Swagger UI et OpenAPI JSON explora, proba atque integra.", "api.cta": "Aperi Swagger",
           "mobile.title": "NutriTracker mobilis uno intuitu",
-          "mobile.desc": "Pagina principalis nunc tabulam mobilem veram et galeriam imaginum ad usum cotidianum ostendit.",
+          "mobile.desc": "Pagina principalis nunc tabulam mobilem veram et galeriam imaginum ostendit ad usum cotidianum demonstrandum, indicia nutritionis celeriter legendum, atque ad munera principalia in telephono mobili facile accedendum.",
           "mobile.b1": "Aspectus tabulae cum summario nutritionis et progressu.",
           "mobile.b2": "Navigatio simplex ad usum celerem in telephono mobili.",
           "mobile.b3": "Experientia API coniuncta ad analysin et consilia personalia.",
           "mobile.prev": "Praecedens",
           "mobile.next": "Sequens",
           "legal.title": "Conformitas et documenta iuridica",
-          "legal.pTitle": "Politica secreti", "legal.pDesc": "Finis, basis iuridica, imminutio datorum et tempora conservationis.",
-          "legal.cTitle": "Politica crustulorum", "legal.cDesc": "Crustula necessaria, consensus et moderatio optionum usoris.",
-          "legal.tTitle": "Conditiones usus", "legal.tDesc": "Regulae usus, limites responsabilitatis et evolutio servitii.",
-          "legal.dTitle": "Documentatio API", "legal.dDesc": "Foedus technicum OpenAPI, exempla petitionum et schemata responsorum.",
+          "legal.pTitle": "Politica secreti", "legal.pDesc": "Proponit fines tractationis, basim iuridicam, imminutio datorum, iura usoris atque tempora conservationis.",
+          "legal.cTitle": "Politica crustulorum", "legal.cDesc": "Explicat crustula necessaria, ordinem consensus, moderationem optionum et vias revocationis.",
+          "legal.tTitle": "Conditiones usus", "legal.tDesc": "Definit regulas usus servitii, responsabilitates partium, limites responsabilitatis et condiciones evolutionis.",
+          "legal.dTitle": "Documentatio API", "legal.dDesc": "Colligit foedus technicum OpenAPI, exempla petitionum/responsorum, formas exspectatas et praecepta optima integrationis.",
+          "legal.gTitle": "Notitia RGPD (UE)", "legal.gDesc": "Iura RGPD, bases iuridicas, tempora conservationis et vias contactus exponit.",
+          "legal.iTitle": "Officium erga consociationes", "legal.iDesc": "Auxilium consociationibus puerorum aegrotantium in Gallia et compagem destinationis lucri explicat.",
           "legal.view": "Vide paginam", "legal.openDocs": "Aperi Swagger",
-          "footer.privacy": "Secretum", "footer.cookies": "Crustula", "footer.terms": "Conditiones", "footer.docs": "Doc API",
+          "footer.privacy": "Secretum", "footer.rgpd": "RGPD", "footer.cookies": "Crustula", "footer.terms": "Conditiones", "footer.impact": "Officium", "footer.docs": "Doc API",
           "footer.note": "© 2026 NutriTracker — API multilinguis EN/FR/PT/IT/ES/DE/RO/LA"
         }
       };
@@ -659,6 +832,9 @@
           const key = node.getAttribute("data-i18n");
           if (dict[key]) node.textContent = dict[key];
         });
+        if (window.NutriCookieBanner?.setLanguage) {
+          window.NutriCookieBanner.setLanguage(selected);
+        }
         localStorage.setItem("lang", selected);
       }
 
@@ -718,5 +894,4 @@
       renderCarousel(activeSlide);
       startAutoplay();
     </script>
-  </body>
-</html>
+{% endblock %}

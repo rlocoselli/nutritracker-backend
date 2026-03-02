@@ -1,9 +1,8 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NutriTracker API Docs</title>
+{% extends "base.html" %}
+
+{% block title %}NutriTracker API Docs{% endblock %}
+
+{% block styles %}
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
     <style>
       body { margin: 0; background: #f7faf6; }
@@ -21,10 +20,20 @@
         color: #2f7f3e;
         font-weight: 700;
       }
+      .left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
       .auth-tools {
         display: flex;
         align-items: center;
         gap: 8px;
+      }
+      .auth-tools select {
+        border: 1px solid #dce8d8;
+        border-radius: 8px;
+        padding: 8px 10px;
       }
       .auth-tools input {
         width: 280px;
@@ -43,20 +52,117 @@
         cursor: pointer;
       }
       #swagger-ui { max-width: 1200px; margin: 0 auto; }
+
+      @media (max-width: 980px) {
+        .top {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+        .auth-tools input { max-width: 100%; width: 100%; }
+      }
     </style>
-  </head>
-  <body>
+{% endblock %}
+
+{% block body %}
     <div class="top">
-      <strong>NutriTracker API Documentation</strong>
+      <div class="left">
+        <strong data-i18n="top.title">NutriTracker API Documentation</strong>
+      </div>
       <div class="auth-tools">
-        <input id="token-input" placeholder="Paste Google Bearer token" />
-        <button id="token-apply">Apply token</button>
-        <a href="/">← Back to home</a>
+        <select id="lang-select" aria-label="Language">
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="pt">Português</option>
+          <option value="it">Italiano</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="ro">Română</option>
+          <option value="la">Latina</option>
+        </select>
+        <input id="token-input" data-i18n-placeholder="top.placeholder" placeholder="Paste Google Bearer token" />
+        <button id="token-apply" data-i18n="top.apply">Apply token</button>
+        <a href="/" data-i18n="top.back">← Back to home</a>
       </div>
     </div>
     <div id="swagger-ui"></div>
+{% endblock %}
+
+{% block scripts %}
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
+      const i18n = {
+        fr: {
+          "top.title": "Documentation API NutriTracker",
+          "top.placeholder": "Collez le token Bearer Google",
+          "top.apply": "Appliquer le token",
+          "top.back": "← Retour à l'accueil"
+        },
+        en: {
+          "top.title": "NutriTracker API Documentation",
+          "top.placeholder": "Paste Google Bearer token",
+          "top.apply": "Apply token",
+          "top.back": "← Back to home"
+        },
+        pt: {
+          "top.title": "Documentação da API NutriTracker",
+          "top.placeholder": "Cole o token Bearer do Google",
+          "top.apply": "Aplicar token",
+          "top.back": "← Voltar ao início"
+        },
+        it: {
+          "top.title": "Documentazione API NutriTracker",
+          "top.placeholder": "Incolla il token Bearer Google",
+          "top.apply": "Applica token",
+          "top.back": "← Torna alla home"
+        },
+        es: {
+          "top.title": "Documentación API de NutriTracker",
+          "top.placeholder": "Pega el token Bearer de Google",
+          "top.apply": "Aplicar token",
+          "top.back": "← Volver al inicio"
+        },
+        de: {
+          "top.title": "NutriTracker API-Dokumentation",
+          "top.placeholder": "Google-Bearer-Token einfügen",
+          "top.apply": "Token anwenden",
+          "top.back": "← Zurück zur Startseite"
+        },
+        ro: {
+          "top.title": "Documentația API NutriTracker",
+          "top.placeholder": "Lipește tokenul Bearer Google",
+          "top.apply": "Aplică token",
+          "top.back": "← Înapoi la început"
+        },
+        la: {
+          "top.title": "Documentatio API NutriTracker",
+          "top.placeholder": "Inserito token Bearer Google",
+          "top.apply": "Token adhibe",
+          "top.back": "← Redi ad initium"
+        }
+      };
+
+      function applyLanguage(lang) {
+        const selected = i18n[lang] ? lang : "fr";
+        const dict = i18n[selected];
+        document.documentElement.lang = selected;
+
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          const key = node.getAttribute("data-i18n");
+          if (dict[key]) node.textContent = dict[key];
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+          const key = node.getAttribute("data-i18n-placeholder");
+          if (dict[key]) node.setAttribute("placeholder", dict[key]);
+        });
+
+        if (window.NutriCookieBanner?.setLanguage) {
+          window.NutriCookieBanner.setLanguage(selected);
+        }
+        localStorage.setItem("lang", selected);
+      }
+
       window.ui = SwaggerUIBundle({
         url: "/api/openapi.json",
         dom_id: "#swagger-ui",
@@ -72,6 +178,12 @@
         if (!token) return;
         window.ui.preauthorizeApiKey("bearerAuth", token);
       });
+
+      const select = document.getElementById("lang-select");
+      const browserLang = (navigator.language || "fr").slice(0, 2).toLowerCase();
+      const initialLang = localStorage.getItem("lang") || (i18n[browserLang] ? browserLang : "fr");
+      select.value = initialLang;
+      applyLanguage(initialLang);
+      select.addEventListener("change", (event) => applyLanguage(event.target.value));
     </script>
-  </body>
-</html>
+{% endblock %}

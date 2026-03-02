@@ -8,8 +8,10 @@
 - OpenAPI JSON: `GET /api/openapi.json`
 - Dedicated legal pages:
   - `GET /privacy`
+  - `GET /rgpd`
   - `GET /cookies`
   - `GET /terms`
+  - `GET /impact`
 
 ## Endpoints
 - `GET /api/health`

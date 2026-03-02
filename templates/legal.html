@@ -1,9 +1,10 @@
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NutriTracker - Legal</title>
+{% extends "base.html" %}
+
+{% block title %}NutriTracker - Legal{% endblock %}
+
+{% block body_attributes %}data-page="{{ page_type }}"{% endblock %}
+
+{% block styles %}
     <style>
       :root {
         --panel: #ffffff;
@@ -89,6 +90,34 @@
         padding: 10px;
       }
 
+      .donation-box {
+        margin-top: 20px;
+        background: #f6fbf4;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+      }
+
+      .donation-box h3 {
+        margin: 0 0 8px;
+      }
+
+      .donate-btn {
+        display: inline-block;
+        margin-top: 8px;
+        text-decoration: none;
+        color: #fff;
+        background: var(--primary);
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+
+      .donate-note {
+        margin-top: 10px;
+        font-size: 0.92rem;
+      }
+
       footer {
         border-top: 1px solid var(--line);
         padding: 16px 0 24px;
@@ -99,8 +128,9 @@
         .meta { grid-template-columns: 1fr; }
       }
     </style>
-  </head>
-  <body data-page="{{ page_type }}">
+  {% endblock %}
+
+  {% block body %}
     <header class="topbar">
       <div class="container topbar-inner">
         <strong>NutriTracker</strong>
@@ -112,6 +142,9 @@
             <option value="pt">Português</option>
             <option value="it">Italiano</option>
             <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="ro">Română</option>
+            <option value="la">Latina</option>
           </select>
         </div>
       </div>
@@ -147,6 +180,13 @@
           <li data-i18n="page.s3b"></li>
           <li data-i18n="page.s3c"></li>
         </ul>
+
+        <section id="donation-box" class="donation-box" hidden>
+          <h3 data-i18n="page.donateTitle"></h3>
+          <p data-i18n="page.donateDesc"></p>
+          <a class="donate-btn" href="https://www.paypal.com/donate/?business=rlocoselli%40yahoo.com.br" target="_blank" rel="noopener noreferrer" data-i18n="page.donateCta"></a>
+          <p class="donate-note" data-i18n="page.donateLegal"></p>
+        </section>
       </article>
     </main>
 
@@ -154,6 +194,9 @@
       <div class="container" data-i18n="common.footer"></div>
     </footer>
 
+  {% endblock %}
+
+  {% block scripts %}
     <script>
       const pageType = document.body.dataset.page || "privacy";
 
@@ -180,6 +223,46 @@
             s3a: "Conservation limitée à la durée nécessaire au service.",
             s3b: "Droit d'accès, rectification, suppression, limitation et portabilité.",
             s3c: "Demande de suppression: privacy@nutritracker.app"
+          },
+          gdpr: {
+            title: "Notice RGPD (UE)",
+            intro: "Cette notice détaille vos droits RGPD, les bases légales du traitement et les modalités d'exercice de vos demandes.",
+            meta1: "Responsable du traitement: NutriTracker",
+            meta2: "Point de contact RGPD: privacy@nutritracker.app",
+            section1Title: "1. Périmètre des données",
+            s1a: "Données de compte strictement nécessaires à l'authentification et à la sécurité.",
+            s1b: "Données nutritionnelles saisies par l'utilisateur pour l'exécution du service.",
+            s1c: "Journaux techniques minimisés pour la prévention des abus et la stabilité.",
+            section2Title: "2. Bases légales et destinataires",
+            s2a: "Exécution du service, consentement explicite et intérêt légitime de sécurité selon les cas.",
+            s2b: "Accès aux données limité aux personnes et sous-traitants strictement habilités.",
+            s2c: "Aucun usage commercial des données personnelles ni revente à des tiers.",
+            section3Title: "3. Durées, transferts et droits",
+            s3a: "Conservation limitée au temps utile, avec suppression ou anonymisation à échéance.",
+            s3b: "Droits: accès, rectification, effacement, opposition, limitation, portabilité, retrait du consentement.",
+            s3c: "Réclamation possible auprès de l'autorité compétente (ex. CNIL) après contact préalable: privacy@nutritracker.app"
+          },
+          impact: {
+            title: "Engagement solidaire",
+            intro: "NutriTracker soutient des associations liées au cancer d'enfant en France. Notre objectif est d'orienter la rentabilité nette vers ce soutien.",
+            meta1: "Zone prioritaire: associations en France",
+            meta2: "Contact partenariat: privacy@nutritracker.app",
+            section1Title: "1. Principe d'engagement",
+            s1a: "L'activité vise un impact social mesurable en faveur d'enfants touchés par le cancer et de leurs familles.",
+            s1b: "La priorité est donnée à des structures associatives reconnues et transparentes.",
+            s1c: "Les modalités de soutien peuvent inclure dons financiers et actions de sensibilisation.",
+            section2Title: "2. Affectation de la rentabilité",
+            s2a: "L'objectif est d'affecter la rentabilité nette distribuable au soutien des associations partenaires.",
+            s2b: "Cette affectation intervient après couverture des obligations légales, fiscales, sociales et de continuité d'activité.",
+            s2c: "La part effectivement versée dépend des résultats annuels, de la trésorerie et des contraintes réglementaires applicables.",
+            section3Title: "3. Cadre juridique et transparence",
+            s3a: "Cette page décrit un engagement de gouvernance et de politique interne, sans constituer une promesse contractuelle individuelle.",
+            s3b: "Les montants et associations soutenues peuvent évoluer en fonction des décisions de gestion et de conformité.",
+            s3c: "Nous publions un bilan synthétique des actions menées lorsqu'il est disponible.",
+            donateTitle: "Soutenir maintenant",
+            donateDesc: "Vous pouvez contribuer directement via PayPal pour soutenir l'application et les actions auprès d'associations liées au cancer d'enfant.",
+            donateCta: "Faire un don via PayPal",
+            donateLegal: "Le don est volontaire et non remboursable. L'affectation aux associations dépend des obligations légales et des capacités financières effectives."
           },
           cookies: {
             title: "Politique de cookies",
@@ -241,6 +324,46 @@
             s3b: "Rights of access, rectification, deletion, restriction, portability.",
             s3c: "Deletion request: privacy@nutritracker.app"
           },
+          gdpr: {
+            title: "GDPR Notice (EU)",
+            intro: "This notice details your GDPR rights, the legal bases for processing, and how to submit requests.",
+            meta1: "Data controller: NutriTracker",
+            meta2: "GDPR contact: privacy@nutritracker.app",
+            section1Title: "1. Data scope",
+            s1a: "Account data strictly required for authentication and security.",
+            s1b: "Nutrition data entered by users to deliver the service.",
+            s1c: "Minimized technical logs for abuse prevention and platform stability.",
+            section2Title: "2. Legal bases and recipients",
+            s2a: "Service performance, explicit consent, and legitimate security interests as applicable.",
+            s2b: "Data access limited to authorized personnel and strictly necessary processors.",
+            s2c: "No commercial resale of personal data to third parties.",
+            section3Title: "3. Retention, transfers and rights",
+            s3a: "Retention is limited to necessary periods, followed by deletion or anonymization.",
+            s3b: "Rights: access, rectification, erasure, objection, restriction, portability, withdrawal of consent.",
+            s3c: "You may file a complaint with a competent authority after first contacting: privacy@nutritracker.app"
+          },
+          impact: {
+            title: "Social commitment",
+            intro: "NutriTracker supports associations related to childhood cancer in France. Our goal is to allocate net profitability to this mission.",
+            meta1: "Priority area: associations in France",
+            meta2: "Partnership contact: privacy@nutritracker.app",
+            section1Title: "1. Commitment principle",
+            s1a: "The activity targets measurable social impact for children affected by cancer and their families.",
+            s1b: "Priority is given to recognized and transparent nonprofit organizations.",
+            s1c: "Support may include financial donations and awareness initiatives.",
+            section2Title: "2. Profitability allocation",
+            s2a: "The objective is to allocate distributable net profitability to partner associations.",
+            s2b: "Allocation applies after legal, tax, social, and business continuity obligations are covered.",
+            s2c: "Actual distributed amounts depend on annual results, cash position, and applicable regulations.",
+            section3Title: "3. Legal framing and transparency",
+            s3a: "This page describes a governance and internal policy commitment and is not an individual contractual promise.",
+            s3b: "Amounts and supported associations may evolve based on management and compliance decisions.",
+            s3c: "A summary of actions is published when available.",
+            donateTitle: "Support now",
+            donateDesc: "You can contribute directly via PayPal to support the application and initiatives with associations linked to childhood cancer.",
+            donateCta: "Donate with PayPal",
+            donateLegal: "Donations are voluntary and non-refundable. Allocation to associations depends on legal obligations and actual financial capacity."
+          },
           cookies: {
             title: "Cookie Policy",
             intro: "This page describes the use of cookies and similar technologies.",
@@ -300,6 +423,46 @@
             s3a: "Retenção limitada ao período necessário ao serviço.",
             s3b: "Direitos de acesso, correção, exclusão, limitação e portabilidade.",
             s3c: "Pedido de exclusão: privacy@nutritracker.app"
+          },
+          gdpr: {
+            title: "Aviso RGPD (UE)",
+            intro: "Este aviso detalha seus direitos RGPD, as bases legais do tratamento e como enviar solicitações.",
+            meta1: "Controlador de dados: NutriTracker",
+            meta2: "Contato RGPD: privacy@nutritracker.app",
+            section1Title: "1. Escopo dos dados",
+            s1a: "Dados de conta estritamente necessários para autenticação e segurança.",
+            s1b: "Dados nutricionais inseridos pelo usuário para execução do serviço.",
+            s1c: "Logs técnicos minimizados para prevenção de abuso e estabilidade da plataforma.",
+            section2Title: "2. Bases legais e destinatários",
+            s2a: "Execução do serviço, consentimento explícito e interesse legítimo de segurança, conforme aplicável.",
+            s2b: "Acesso aos dados restrito a pessoas autorizadas e operadores estritamente necessários.",
+            s2c: "Sem revenda comercial de dados pessoais a terceiros.",
+            section3Title: "3. Retenção, transferências e direitos",
+            s3a: "Retenção limitada ao período necessário, seguida de exclusão ou anonimização.",
+            s3b: "Direitos: acesso, retificação, exclusão, oposição, limitação, portabilidade e retirada de consentimento.",
+            s3c: "Você pode reclamar à autoridade competente após contato prévio: privacy@nutritracker.app"
+          },
+          impact: {
+            title: "Compromisso social",
+            intro: "A NutriTracker apoia associações ligadas ao câncer infantil na França. Nosso objetivo é direcionar a rentabilidade líquida para essa missão.",
+            meta1: "Área prioritária: associações na França",
+            meta2: "Contato para parceria: privacy@nutritracker.app",
+            section1Title: "1. Princípio de compromisso",
+            s1a: "A atividade busca impacto social mensurável para crianças afetadas pelo câncer e suas famílias.",
+            s1b: "A prioridade é dada a organizações sem fins lucrativos reconhecidas e transparentes.",
+            s1c: "O apoio pode incluir doações financeiras e ações de sensibilização.",
+            section2Title: "2. Destinação da rentabilidade",
+            s2a: "O objetivo é destinar a rentabilidade líquida distribuível às associações parceiras.",
+            s2b: "A destinação ocorre após cobertura de obrigações legais, fiscais, sociais e de continuidade do negócio.",
+            s2c: "Os valores efetivamente destinados dependem do resultado anual, do caixa e das exigências regulatórias.",
+            section3Title: "3. Enquadramento jurídico e transparência",
+            s3a: "Esta página descreve um compromisso de governança e política interna, sem constituir promessa contratual individual.",
+            s3b: "Valores e associações apoiadas podem evoluir conforme decisões de gestão e conformidade.",
+            s3c: "Um resumo das ações é publicado quando disponível.",
+            donateTitle: "Apoiar agora",
+            donateDesc: "Você pode contribuir diretamente via PayPal para apoiar o aplicativo e ações com associações ligadas ao câncer infantil.",
+            donateCta: "Doar com PayPal",
+            donateLegal: "A doação é voluntária e não reembolsável. A destinação para associações depende de obrigações legais e da capacidade financeira efetiva."
           },
           cookies: {
             title: "Política de Cookies",
@@ -361,6 +524,46 @@
             s3b: "Diritti di accesso, rettifica, cancellazione, limitazione e portabilità.",
             s3c: "Richiesta cancellazione: privacy@nutritracker.app"
           },
+          gdpr: {
+            title: "Informativa GDPR (UE)",
+            intro: "Questa informativa descrive i tuoi diritti GDPR, le basi giuridiche del trattamento e come inviare richieste.",
+            meta1: "Titolare del trattamento: NutriTracker",
+            meta2: "Contatto GDPR: privacy@nutritracker.app",
+            section1Title: "1. Ambito dei dati",
+            s1a: "Dati account strettamente necessari per autenticazione e sicurezza.",
+            s1b: "Dati nutrizionali inseriti dall'utente per fornire il servizio.",
+            s1c: "Log tecnici minimizzati per prevenzione abusi e stabilità della piattaforma.",
+            section2Title: "2. Basi giuridiche e destinatari",
+            s2a: "Esecuzione del servizio, consenso esplicito e legittimo interesse di sicurezza ove applicabile.",
+            s2b: "Accesso ai dati limitato a personale autorizzato e responsabili strettamente necessari.",
+            s2c: "Nessuna rivendita commerciale dei dati personali a terzi.",
+            section3Title: "3. Conservazione, trasferimenti e diritti",
+            s3a: "Conservazione limitata ai tempi necessari, poi cancellazione o anonimizzazione.",
+            s3b: "Diritti: accesso, rettifica, cancellazione, opposizione, limitazione, portabilità, revoca del consenso.",
+            s3c: "È possibile presentare reclamo all'autorità competente dopo primo contatto: privacy@nutritracker.app"
+          },
+          impact: {
+            title: "Impegno sociale",
+            intro: "NutriTracker sostiene associazioni legate al cancro infantile in Francia. Il nostro obiettivo è destinare la redditività netta a questa missione.",
+            meta1: "Area prioritaria: associazioni in Francia",
+            meta2: "Contatto partnership: privacy@nutritracker.app",
+            section1Title: "1. Principio di impegno",
+            s1a: "L'attività mira a un impatto sociale misurabile per bambini colpiti da tumore e famiglie.",
+            s1b: "Priorità a organizzazioni non profit riconosciute e trasparenti.",
+            s1c: "Il sostegno può includere donazioni finanziarie e iniziative di sensibilizzazione.",
+            section2Title: "2. Destinazione della redditività",
+            s2a: "L'obiettivo è destinare la redditività netta distribuibile alle associazioni partner.",
+            s2b: "La destinazione avviene dopo copertura di obblighi legali, fiscali, sociali e continuità aziendale.",
+            s2c: "Gli importi effettivi dipendono da risultati annuali, cassa e vincoli normativi applicabili.",
+            section3Title: "3. Inquadramento legale e trasparenza",
+            s3a: "Questa pagina descrive un impegno di governance e policy interna, non una promessa contrattuale individuale.",
+            s3b: "Importi e associazioni sostenute possono evolvere secondo decisioni gestionali e di conformità.",
+            s3c: "Un riepilogo delle azioni viene pubblicato quando disponibile.",
+            donateTitle: "Sostieni ora",
+            donateDesc: "Puoi contribuire direttamente via PayPal per sostenere l'applicazione e le iniziative con associazioni legate al cancro infantile.",
+            donateCta: "Dona con PayPal",
+            donateLegal: "La donazione è volontaria e non rimborsabile. La destinazione alle associazioni dipende da obblighi legali e capacità finanziaria effettiva."
+          },
           cookies: {
             title: "Cookie Policy",
             intro: "Questa pagina descrive l'uso di cookie e tecnologie simili.",
@@ -421,6 +624,46 @@
             s3b: "Derechos de acceso, rectificación, supresión, limitación y portabilidad.",
             s3c: "Solicitud de eliminación: privacy@nutritracker.app"
           },
+          gdpr: {
+            title: "Aviso RGPD (UE)",
+            intro: "Este aviso detalla tus derechos RGPD, las bases legales del tratamiento y cómo enviar solicitudes.",
+            meta1: "Responsable del tratamiento: NutriTracker",
+            meta2: "Contacto RGPD: privacy@nutritracker.app",
+            section1Title: "1. Alcance de los datos",
+            s1a: "Datos de cuenta estrictamente necesarios para autenticación y seguridad.",
+            s1b: "Datos nutricionales introducidos por el usuario para prestar el servicio.",
+            s1c: "Registros técnicos minimizados para prevenir abusos y asegurar estabilidad.",
+            section2Title: "2. Bases legales y destinatarios",
+            s2a: "Ejecución del servicio, consentimiento explícito e interés legítimo de seguridad según corresponda.",
+            s2b: "Acceso limitado a personal autorizado y encargados estrictamente necesarios.",
+            s2c: "Sin reventa comercial de datos personales a terceros.",
+            section3Title: "3. Conservación, transferencias y derechos",
+            s3a: "Conservación limitada al tiempo necesario, con supresión o anonimización posterior.",
+            s3b: "Derechos: acceso, rectificación, supresión, oposición, limitación, portabilidad y retirada del consentimiento.",
+            s3c: "Puedes reclamar ante la autoridad competente tras contacto previo: privacy@nutritracker.app"
+          },
+          impact: {
+            title: "Compromiso social",
+            intro: "NutriTracker apoya asociaciones vinculadas al cáncer infantil en Francia. Nuestro objetivo es destinar la rentabilidad neta a esta misión.",
+            meta1: "Área prioritaria: asociaciones en Francia",
+            meta2: "Contacto de alianzas: privacy@nutritracker.app",
+            section1Title: "1. Principio de compromiso",
+            s1a: "La actividad busca un impacto social medible para niños afectados por cáncer y sus familias.",
+            s1b: "Se priorizan organizaciones sin ánimo de lucro reconocidas y transparentes.",
+            s1c: "El apoyo puede incluir donaciones económicas y acciones de sensibilización.",
+            section2Title: "2. Destino de la rentabilidad",
+            s2a: "El objetivo es destinar la rentabilidad neta distribuible a asociaciones colaboradoras.",
+            s2b: "La asignación se realiza tras cubrir obligaciones legales, fiscales, sociales y de continuidad del negocio.",
+            s2c: "Los importes efectivamente destinados dependen del resultado anual, la tesorería y los requisitos regulatorios.",
+            section3Title: "3. Marco legal y transparencia",
+            s3a: "Esta página describe un compromiso de gobernanza y política interna, y no constituye una promesa contractual individual.",
+            s3b: "Los importes y asociaciones apoyadas pueden evolucionar según decisiones de gestión y cumplimiento.",
+            s3c: "Se publica un resumen de acciones cuando está disponible.",
+            donateTitle: "Apoyar ahora",
+            donateDesc: "Puedes contribuir directamente por PayPal para apoyar la aplicación y las iniciativas con asociaciones vinculadas al cáncer infantil.",
+            donateCta: "Donar con PayPal",
+            donateLegal: "La donación es voluntaria y no reembolsable. La asignación a asociaciones depende de obligaciones legales y de la capacidad financiera efectiva."
+          },
           cookies: {
             title: "Política de Cookies",
             intro: "Esta página describe el uso de cookies y tecnologías similares.",
@@ -460,9 +703,33 @@
         }
       };
 
+      content.de = {
+        ...content.en,
+        common: {
+          back: "Zurück zur Startseite",
+          footer: "DSGVO-Anfragen: privacy@nutritracker.app"
+        }
+      };
+
+      content.ro = {
+        ...content.en,
+        common: {
+          back: "Înapoi la început",
+          footer: "Solicitări RGPD: privacy@nutritracker.app"
+        }
+      };
+
+      content.la = {
+        ...content.en,
+        common: {
+          back: "Redi ad initium",
+          footer: "Postulationes RGPD: privacy@nutritracker.app"
+        }
+      };
+
       function setText(key, value) {
         document.querySelectorAll(`[data-i18n="${key}"]`).forEach((node) => {
-          node.textContent = value;
+          node.textContent = value.replaceAll("privacy@nutritracker.app", "support@nutritiontracker.fr");
         });
       }
 
@@ -470,10 +737,17 @@
         const selected = content[lang] ? lang : "fr";
         const dictionary = content[selected];
         const pageData = dictionary[pageType] || dictionary.privacy;
+        const donationBox = document.getElementById("donation-box");
 
         document.documentElement.lang = selected;
         Object.entries(dictionary.common).forEach(([k, v]) => setText(`common.${k}`, v));
         Object.entries(pageData).forEach(([k, v]) => setText(`page.${k}`, v));
+        if (donationBox) {
+          donationBox.hidden = pageType !== "impact";
+        }
+        if (window.NutriCookieBanner?.setLanguage) {
+          window.NutriCookieBanner.setLanguage(selected);
+        }
         localStorage.setItem("lang", selected);
       }
 
@@ -485,5 +759,4 @@
 
       select.addEventListener("change", (event) => applyLanguage(event.target.value));
     </script>
-  </body>
-</html>
+{% endblock %}

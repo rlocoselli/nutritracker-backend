@@ -306,6 +306,11 @@ def privacy_page():
     return render_template("legal.html", page_type="privacy")
 
 
+@app.get("/rgpd")
+def rgpd_page():
+    return render_template("legal.html", page_type="gdpr")
+
+
 @app.get("/cookies")
 def cookies_page():
     return render_template("legal.html", page_type="cookies")
@@ -314,6 +319,11 @@ def cookies_page():
 @app.get("/terms")
 def terms_page():
     return render_template("legal.html", page_type="terms")
+
+
+@app.get("/impact")
+def impact_page():
+    return render_template("legal.html", page_type="impact")
 
 
 @app.get("/api/openapi.json")
