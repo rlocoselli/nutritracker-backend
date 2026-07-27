@@ -25,7 +25,9 @@
   - Header: `Authorization: Bearer <google_id_token>`
 
 ## Environment variables
-- `OPENAI_API_KEY` (required)
+- `MISTRAL_API_KEY` (preferred primary provider)
+- `MISTRAL_MODEL` (optional, default: `mistral-small-latest`)
+- `OPENAI_API_KEY` (fallback provider)
 - `GOOGLE_CLIENT_ID` (required) Web OAuth client id
 - `OPENAI_MODEL` (optional, default: `gpt-4.1-mini`)
 - `DB_HOST` (required for DB connection)
@@ -40,6 +42,7 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+export MISTRAL_API_KEY="..."
 export OPENAI_API_KEY="..."
 export GOOGLE_CLIENT_ID="..."
 python app.py

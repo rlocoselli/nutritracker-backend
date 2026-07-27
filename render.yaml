@@ -7,6 +7,10 @@ services:
     startCommand: gunicorn app:app
     autoDeploy: true
     envVars:
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: MISTRAL_MODEL
+        value: mistral-small-latest
       - key: OPENAI_API_KEY
         sync: false
       - key: GOOGLE_CLIENT_ID

@@ -3,10 +3,10 @@ import json
 import base64
 from datetime import datetime, timezone
 
+import requests
 from flask import Flask, request, jsonify, render_template
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
-from openai import OpenAI
 from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship, sessionmaker
@@ -15,7 +15,6 @@ app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB upload limit
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 client = None
 db_engine = None
@@ -59,7 +58,9 @@ class RecommendationRecord(Base):
 
 def get_missing_env_vars() -> list[str]:
     missing = []
-    if not os.environ.get("OPENAI_API_KEY"):
+    if not os.environ.get("MISTRAL_API_KEY") and not os.environ.get("OPENAI_API_KEY"):
+        # Keep the public API's historical configuration error stable. Mistral is
+        # an internal provider option; API clients should not need to know about it.
         missing.append("OPENAI_API_KEY")
     if not os.environ.get("GOOGLE_CLIENT_ID"):
         missing.append("GOOGLE_CLIENT_ID")
@@ -183,15 +184,67 @@ def save_recommendation(google_sub: str, payload: dict) -> None:
         session.commit()
 
 
-def get_openai_client() -> OpenAI | None:
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        return None
+def get_ai_provider() -> dict | None:
+    if os.environ.get("MISTRAL_API_KEY"):
+        return {
+            "provider": "mistral",
+            "api_key": os.environ.get("MISTRAL_API_KEY"),
+            "model": os.environ.get("MISTRAL_MODEL", "mistral-small-latest"),
+            "base_url": "https://api.mistral.ai/v1/chat/completions",
+        }
 
-    global client
-    if client is None:
-        client = OpenAI(api_key=api_key)
-    return client
+    if os.environ.get("OPENAI_API_KEY"):
+        return {
+            "provider": "openai",
+            "api_key": os.environ.get("OPENAI_API_KEY"),
+            "model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
+            "base_url": "https://api.openai.com/v1/chat/completions",
+        }
+
+    return None
+
+
+def call_ai_provider(provider: dict, messages: list[dict], temperature: float) -> str:
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {provider['api_key']}",
+    }
+    payload = {
+        "model": provider["model"],
+        "messages": messages,
+        "temperature": temperature,
+        "response_format": {"type": "json_object"},
+    }
+
+    response = requests.post(provider["base_url"], headers=headers, json=payload, timeout=90)
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"] or ""
+
+
+def invoke_ai(messages: list[dict], temperature: float) -> str:
+    provider = get_ai_provider()
+    if provider is None:
+        raise RuntimeError("no_ai_provider_configured")
+
+    if provider["provider"] == "mistral":
+        try:
+            return call_ai_provider(provider, messages, temperature)
+        except Exception:
+            fallback_provider = None
+            if os.environ.get("OPENAI_API_KEY"):
+                fallback_provider = {
+                    "provider": "openai",
+                    "api_key": os.environ.get("OPENAI_API_KEY"),
+                    "model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
+                    "base_url": "https://api.openai.com/v1/chat/completions",
+                }
+            if fallback_provider is None:
+                raise
+            return call_ai_provider(fallback_provider, messages, temperature)
+
+    return call_ai_provider(provider, messages, temperature)
+
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -544,10 +597,6 @@ def analyze_meal():
     if missing_env_vars:
         return jsonify({"error": "server_not_configured", "missing_env_vars": missing_env_vars}), 503
 
-    openai_client = get_openai_client()
-    if openai_client is None:
-        return jsonify({"error": "server_not_configured", "missing_env_vars": ["OPENAI_API_KEY"]}), 503
-
     token = get_bearer_token()
     if not token:
         return jsonify({"error": "missing_bearer_token"}), 401
@@ -583,16 +632,17 @@ def analyze_meal():
             "image_url": {"url": f"data:{mime};base64,{img_b64}"}
         })
 
-    resp = openai_client.chat.completions.create(
-        model=os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT_ANALYZE},
-            {"role": "user", "content": user_content},
-        ],
-        temperature=0.2,
-    )
-
-    raw = resp.choices[0].message.content or ""
+    try:
+        raw = invoke_ai(
+            [
+                {"role": "system", "content": SYSTEM_PROMPT_ANALYZE},
+                {"role": "user", "content": user_content},
+            ],
+            temperature=0.2,
+        )
+    except Exception:
+        # Provider names and transport details are intentionally kept internal.
+        return jsonify({"error": "model_request_failed"}), 502
     parsed = safe_json_loads(raw)
     if parsed is None:
         return jsonify({"error": "model_returned_invalid_json", "raw": raw}), 502
@@ -615,10 +665,6 @@ def recommendations():
     if missing_env_vars:
         return jsonify({"error": "server_not_configured", "missing_env_vars": missing_env_vars}), 503
 
-    openai_client = get_openai_client()
-    if openai_client is None:
-        return jsonify({"error": "server_not_configured", "missing_env_vars": ["OPENAI_API_KEY"]}), 503
-
     token = get_bearer_token()
     if not token:
         return jsonify({"error": "missing_bearer_token"}), 401
@@ -631,16 +677,17 @@ def recommendations():
 
     payload = request.get_json(silent=True) or {}
 
-    resp = openai_client.chat.completions.create(
-        model=os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT_RECO},
-            {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
-        ],
-        temperature=0.4,
-    )
-
-    raw = resp.choices[0].message.content or ""
+    try:
+        raw = invoke_ai(
+            [
+                {"role": "system", "content": SYSTEM_PROMPT_RECO},
+                {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+            ],
+            temperature=0.4,
+        )
+    except Exception:
+        # Keep the client-facing failure contract independent of the provider.
+        return jsonify({"error": "model_request_failed"}), 502
     parsed = safe_json_loads(raw)
     if parsed is None:
         return jsonify({"error": "model_returned_invalid_json", "raw": raw}), 502

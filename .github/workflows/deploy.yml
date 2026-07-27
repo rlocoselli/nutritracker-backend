@@ -39,6 +39,8 @@ jobs:
             git reset --hard "origin/${{ github.ref_name }}"
 
             {
+              echo "MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }}"
+              echo "MISTRAL_MODEL=${{ secrets.MISTRAL_MODEL || 'mistral-small-latest' }}"
               echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
               echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
               echo "DB_HOST=${{ secrets.DB_HOST }}"
@@ -54,12 +56,17 @@ jobs:
               fi
             } > .env
 
-            for var_name in OPENAI_API_KEY GOOGLE_CLIENT_ID DB_HOST DB_USER DB_PASSWORD DB_NAME DB_PORT; do
-              if ! grep -q "^${var_name}=" .env; then
+            for var_name in GOOGLE_CLIENT_ID DB_HOST DB_USER DB_PASSWORD DB_NAME DB_PORT; do
+              if ! grep -q "^${var_name}=.\+" .env; then
                 echo "❌ Missing ${var_name} in generated .env"
                 exit 1
               fi
             done
+
+            if ! grep -qE '^(MISTRAL_API_KEY|OPENAI_API_KEY)=.+' .env; then
+              echo "❌ At least one AI provider key must be configured"
+              exit 1
+            fi
 
             docker compose down --remove-orphans || true
             if ! docker compose up -d --build; then
