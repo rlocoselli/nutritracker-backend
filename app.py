@@ -4,7 +4,7 @@ import base64
 from datetime import datetime, timezone
 
 import requests
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, create_engine, text
@@ -352,6 +352,11 @@ Schema obrigatório:
 @app.get("/")
 def index():
     return render_template("index.html")
+
+
+@app.get("/app-ads.txt")
+def app_ads_txt():
+    return send_from_directory(app.root_path, "app-ads.txt", mimetype="text/plain")
 
 
 @app.get("/privacy")
