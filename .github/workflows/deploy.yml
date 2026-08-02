@@ -66,6 +66,8 @@ jobs:
               echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
               echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
               echo "MOBILE_AUTH_VERIFY_URL=${{ secrets.MOBILE_AUTH_VERIFY_URL }}"
+              echo "MOBILE_API_BASE_URL=${{ secrets.MOBILE_API_BASE_URL || 'https://api.nutritiontracker.fr/api' }}"
+              echo "WEB_SESSION_SECRET=${{ secrets.WEB_SESSION_SECRET }}"
               echo "DB_HOST=${{ secrets.DB_HOST }}"
               echo "DB_USER=${{ secrets.DB_USER }}"
               echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
@@ -79,7 +81,7 @@ jobs:
               fi
             } > .env
 
-            for var_name in GOOGLE_CLIENT_ID DB_HOST DB_USER DB_PASSWORD DB_NAME DB_PORT; do
+            for var_name in GOOGLE_CLIENT_ID WEB_SESSION_SECRET DB_HOST DB_USER DB_PASSWORD DB_NAME DB_PORT; do
               if ! grep -q "^${var_name}=.\+" .env; then
                 echo "❌ Missing ${var_name} in generated .env"
                 exit 1

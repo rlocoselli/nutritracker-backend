@@ -206,5 +206,56 @@ class MobileAuthenticationTests(unittest.TestCase):
         )
 
 
+class SharedMobileAccountTests(unittest.TestCase):
+    def setUp(self):
+        app.config.update(
+            TESTING=True,
+            SECRET_KEY="test-session-secret",
+            SESSION_COOKIE_SECURE=False,
+        )
+        self.client = app.test_client()
+
+    @patch("app.mobile_api_request")
+    def test_email_login_reads_same_mobile_meals(self, mobile_request):
+        login_response = Mock(status_code=200)
+        login_response.json.return_value = {
+            "user_id": "9c964d41-ff1a-4b51-960a-2341bddf18ec",
+            "email": "alex@example.com",
+            "name": "Alex",
+        }
+        login_response.raise_for_status.return_value = None
+        history_response = Mock(status_code=200)
+        history_response.json.return_value = [
+            {
+                "id": "meal-1",
+                "date_utc": "2026-08-01T12:00:00Z",
+                "total_calories": 540,
+            }
+        ]
+        history_response.raise_for_status.return_value = None
+        mobile_request.side_effect = [login_response, history_response]
+
+        login = self.client.post(
+            "/api/account/email/login",
+            json={"email": "alex@example.com", "password": "secret12"},
+        )
+        history = self.client.get("/api/account/history")
+
+        self.assertEqual(login.status_code, 200)
+        self.assertEqual(login.get_json()["user"]["auth_provider"], "email")
+        self.assertEqual(history.status_code, 200)
+        self.assertEqual(history.get_json()["meals"][0]["id"], "meal-1")
+        self.assertEqual(
+            mobile_request.call_args_list[1].kwargs["headers"]["X-User-Id"],
+            "9c964d41-ff1a-4b51-960a-2341bddf18ec",
+        )
+
+    def test_mobile_history_requires_browser_session(self):
+        response = self.client.get("/api/account/history")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.get_json(), {"error": "account_session_required"})
+
+
 if __name__ == "__main__":
     unittest.main()

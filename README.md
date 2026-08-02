@@ -18,6 +18,9 @@
 - `GET /api/health/db` (checks PostgreSQL connectivity)
 - `GET /api/me` (verified Google or mobile account profile)
 - `GET /api/me/history?limit=20` (saved meal analyses and recommendations)
+- `POST /api/account/google` (connect the same Google identity used by mobile)
+- `POST /api/account/email/login` (connect an email account registered in mobile)
+- `GET /api/account/me` and `GET /api/account/history` (browser-session access to mobile data)
 - `POST /api/analyze-meal`
   - JSON: `{ "lang": "pt", "text": "comi 2 ovos" }`
   - or multipart form-data: fields `lang`, `text` and file `image`
@@ -32,6 +35,8 @@
 - `OPENAI_API_KEY` (fallback provider)
 - `GOOGLE_CLIENT_ID` (required) Web OAuth client id
 - `MOBILE_AUTH_VERIFY_URL` (optional) trusted server endpoint that validates a registered mobile user's bearer token and returns an active `sub` or `user_id`
+- `MOBILE_API_BASE_URL` (optional, default: `https://api.nutritiontracker.fr/api`) mobile synchronization service
+- `WEB_SESSION_SECRET` (required for website account login) long random secret used to sign secure browser sessions
 - `OPENAI_MODEL` (optional, default: `gpt-4.1-mini`)
 - `DB_HOST` (required for DB connection)
 - `DB_USER` (required for DB connection)

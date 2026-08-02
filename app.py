@@ -1,10 +1,10 @@
 import os
 import json
 import base64
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import requests
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, create_engine, text
@@ -13,8 +13,16 @@ from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB upload limit
+app.config["SECRET_KEY"] = os.environ.get("WEB_SESSION_SECRET")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("FLASK_ENV") != "development"
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=12)
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+MOBILE_API_BASE_URL = os.environ.get(
+    "MOBILE_API_BASE_URL", "https://api.nutritiontracker.fr/api"
+).rstrip("/")
 
 client = None
 db_engine = None
@@ -320,6 +328,43 @@ def safe_json_loads(s: str):
         return None
 
 
+def mobile_api_request(method: str, path: str, **kwargs):
+    return requests.request(
+        method,
+        f"{MOBILE_API_BASE_URL}/{path.lstrip('/')}",
+        timeout=15,
+        **kwargs,
+    )
+
+
+def browser_session_available() -> bool:
+    return bool(app.config.get("SECRET_KEY"))
+
+
+def establish_mobile_session(identity: dict, auth_method: str) -> dict:
+    user_id = str(identity.get("user_id") or "").strip()
+    if not user_id:
+        raise ValueError("mobile_identity_missing_user_id")
+    session.clear()
+    session.permanent = True
+    session["mobile_user_id"] = user_id
+    session["mobile_profile"] = {
+        "id": user_id,
+        "email": identity.get("email"),
+        "name": identity.get("name") or identity.get("display_name"),
+        "picture": identity.get("picture") or identity.get("picture_url"),
+        "auth_provider": auth_method,
+    }
+    return session["mobile_profile"]
+
+
+def require_mobile_session() -> tuple[str | None, tuple | None]:
+    user_id = session.get("mobile_user_id") if browser_session_available() else None
+    if not user_id:
+        return None, (jsonify({"error": "account_session_required"}), 401)
+    return str(user_id), None
+
+
 initialize_database()
 
 
@@ -394,6 +439,92 @@ Schema obrigatório:
 @app.get("/")
 def index():
     return render_template("index.html", google_client_id=os.environ.get("GOOGLE_CLIENT_ID"))
+
+
+@app.post("/api/account/google")
+def browser_google_login():
+    if not browser_session_available():
+        return jsonify({"error": "browser_session_not_configured"}), 503
+    token = str((request.get_json(silent=True) or {}).get("id_token") or "").strip()
+    if not token:
+        return jsonify({"error": "missing_google_id_token"}), 400
+    try:
+        google_profile = verify_google_id_token(token)
+        response = mobile_api_request("POST", "/auth/google", json={"id_token": token})
+        response.raise_for_status()
+        mobile_identity = response.json()
+        mobile_identity.update({
+            "name": google_profile.get("name"),
+            "picture": google_profile.get("picture"),
+            "email": google_profile.get("email") or mobile_identity.get("email"),
+        })
+        profile = establish_mobile_session(mobile_identity, "google")
+        return jsonify({"user": profile})
+    except Exception:
+        return jsonify({"error": "google_account_connection_failed"}), 401
+
+
+@app.post("/api/account/email/login")
+def browser_email_login():
+    if not browser_session_available():
+        return jsonify({"error": "browser_session_not_configured"}), 503
+    body = request.get_json(silent=True) or {}
+    email = str(body.get("email") or "").strip().lower()
+    password = str(body.get("password") or "")
+    if not email or not password:
+        return jsonify({"error": "email_and_password_required"}), 400
+    try:
+        response = mobile_api_request(
+            "POST", "/auth/email/login", json={"email": email, "password": password}
+        )
+        if response.status_code in (401, 403, 404):
+            return jsonify({"error": "invalid_email_credentials"}), 401
+        response.raise_for_status()
+        profile = establish_mobile_session(response.json(), "email")
+        return jsonify({"user": profile})
+    except Exception:
+        return jsonify({"error": "mobile_account_service_unavailable"}), 502
+
+
+@app.post("/api/account/logout")
+def browser_account_logout():
+    if not browser_session_available():
+        return jsonify({"error": "browser_session_not_configured"}), 503
+    session.clear()
+    return jsonify({"ok": True})
+
+
+@app.get("/api/account/me")
+def browser_account_profile():
+    _, error = require_mobile_session()
+    if error:
+        return error
+    return jsonify({"user": session.get("mobile_profile") or {}})
+
+
+@app.get("/api/account/history")
+def browser_account_history():
+    user_id, error = require_mobile_session()
+    if error:
+        return error
+    days = min(max(request.args.get("days", default=90, type=int) or 90, 1), 365)
+    today = date.today()
+    try:
+        response = mobile_api_request(
+            "GET",
+            "/meals",
+            headers={"X-User-Id": user_id},
+            params={
+                "from": (today - timedelta(days=days)).isoformat(),
+                "to": today.isoformat(),
+                "includePhoto": "true",
+            },
+        )
+        response.raise_for_status()
+        meals = response.json()
+        return jsonify({"meals": meals if isinstance(meals, list) else [], "count": len(meals) if isinstance(meals, list) else 0})
+    except Exception:
+        return jsonify({"error": "mobile_history_unavailable"}), 502
 
 
 @app.get("/app-ads.txt")
@@ -495,6 +626,30 @@ def openapi_spec():
                     "responses": {
                         "200": {"description": "Minimal verified profile"},
                         "401": {"description": "Missing or invalid access token"},
+                    },
+                }
+            },
+            "/api/account/email/login": {
+                "post": {
+                    "tags": ["Account"],
+                    "summary": "Sign in with the same email account as the mobile app",
+                    "requestBody": {
+                        "required": True,
+                        "content": {"application/json": {"example": {"email": "user@example.com", "password": "••••••••"}}},
+                    },
+                    "responses": {
+                        "200": {"description": "Secure browser session established"},
+                        "401": {"description": "Invalid mobile account credentials"},
+                    },
+                }
+            },
+            "/api/account/history": {
+                "get": {
+                    "tags": ["Account"],
+                    "summary": "Retrieve meals from the connected mobile account",
+                    "responses": {
+                        "200": {"description": "Mobile meal history"},
+                        "401": {"description": "Browser account session required"},
                     },
                 }
             },
