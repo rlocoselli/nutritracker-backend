@@ -256,6 +256,35 @@ class SharedMobileAccountTests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.get_json(), {"error": "account_session_required"})
 
+    @patch("app.mobile_api_request")
+    def test_dashboard_combines_mobile_meals_goals_water_and_points(self, mobile_request):
+        payloads = [
+            [{"id": "meal-1", "total_calories": 540}],
+            {"calories_target": 2100, "protein_g_target": 125, "carbs_g_target": 230},
+            {"liters": 1.5},
+            {"balance": 80},
+        ]
+        responses = []
+        for payload in payloads:
+            response = Mock(status_code=200)
+            response.json.return_value = payload
+            response.raise_for_status.return_value = None
+            responses.append(response)
+        mobile_request.side_effect = responses
+
+        with self.client.session_transaction() as browser_session:
+            browser_session["mobile_user_id"] = "9c964d41-ff1a-4b51-960a-2341bddf18ec"
+            browser_session["mobile_profile"] = {"name": "Alex"}
+
+        response = self.client.get("/api/account/dashboard?days=30")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_json()
+        self.assertEqual(body["count"], 1)
+        self.assertEqual(body["goals"]["calories_target"], 2100)
+        self.assertEqual(body["water"]["liters"], 1.5)
+        self.assertEqual(body["points"]["balance"], 80)
+
 
 if __name__ == "__main__":
     unittest.main()

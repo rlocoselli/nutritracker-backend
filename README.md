@@ -21,6 +21,7 @@
 - `POST /api/account/google` (connect the same Google identity used by mobile)
 - `POST /api/account/email/login` (connect an email account registered in mobile)
 - `GET /api/account/me` and `GET /api/account/history` (browser-session access to mobile data)
+- `GET /api/account/dashboard` (mobile meals, goals, hydration, and reward points for the signed-in dashboard)
 - `POST /api/analyze-meal`
   - JSON: `{ "lang": "pt", "text": "comi 2 ovos" }`
   - or multipart form-data: fields `lang`, `text` and file `image`

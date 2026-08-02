@@ -527,6 +527,56 @@ def browser_account_history():
         return jsonify({"error": "mobile_history_unavailable"}), 502
 
 
+@app.get("/api/account/dashboard")
+def browser_account_dashboard():
+    user_id, error = require_mobile_session()
+    if error:
+        return error
+    days = min(max(request.args.get("days", default=30, type=int) or 30, 7), 90)
+    today = date.today()
+    headers = {"X-User-Id": user_id}
+
+    try:
+        meals_response = mobile_api_request(
+            "GET",
+            "/meals",
+            headers=headers,
+            params={
+                "from": (today - timedelta(days=days)).isoformat(),
+                "to": today.isoformat(),
+                "includePhoto": "true",
+            },
+        )
+        meals_response.raise_for_status()
+        meals = meals_response.json()
+        if not isinstance(meals, list):
+            meals = []
+    except Exception:
+        return jsonify({"error": "mobile_dashboard_unavailable"}), 502
+
+    optional_requests = {
+        "goals": ("/goals", None),
+        "water": ("/water-intake", {"day": today.isoformat()}),
+        "points": ("/points/wallet", None),
+    }
+    extras = {
+        "goals": {"calories_target": 2000, "carbs_g_target": 220, "protein_g_target": 120},
+        "water": {"day_key_utc": today.isoformat(), "liters": 0},
+        "points": {"balance": 0},
+    }
+    for key, (path, params) in optional_requests.items():
+        try:
+            response = mobile_api_request("GET", path, headers=headers, params=params)
+            response.raise_for_status()
+            payload = response.json()
+            if isinstance(payload, dict):
+                extras[key] = payload
+        except Exception:
+            pass
+
+    return jsonify({"meals": meals, "count": len(meals), **extras})
+
+
 @app.get("/app-ads.txt")
 def app_ads_txt():
     return send_from_directory(app.root_path, "app-ads.txt", mimetype="text/plain")
@@ -650,6 +700,17 @@ def openapi_spec():
                     "responses": {
                         "200": {"description": "Mobile meal history"},
                         "401": {"description": "Browser account session required"},
+                    },
+                }
+            },
+            "/api/account/dashboard": {
+                "get": {
+                    "tags": ["Account"],
+                    "summary": "Get mobile dashboard meals, goals, hydration, and points",
+                    "responses": {
+                        "200": {"description": "Combined mobile dashboard data"},
+                        "401": {"description": "Browser account session required"},
+                        "502": {"description": "Mobile dashboard service unavailable"},
                     },
                 }
             },
