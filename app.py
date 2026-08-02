@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import mimetypes
 from datetime import date, datetime, timedelta, timezone
 
 import requests
@@ -10,6 +11,8 @@ from google.auth.transport import requests as grequests
 from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship, sessionmaker
+
+mimetypes.add_type("image/webp", ".webp")
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB upload limit

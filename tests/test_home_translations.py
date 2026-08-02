@@ -19,14 +19,31 @@ def test_dashboard_and_play_copy_exists_for_every_supported_language():
         "dash.recent",
         "dash.empty",
         "dash.meal",
+        "concept.kicker",
+        "concept.title",
+        "concept.desc",
+        "concept.badge",
+        "concept.dashboardTitle",
+        "concept.dashboardDesc",
+        "concept.dashboardAlt",
+        "concept.mealTitle",
+        "concept.mealDesc",
+        "concept.mealAlt",
+        "concept.progressTitle",
+        "concept.progressDesc",
+        "concept.progressAlt",
     }
 
     for locale in ("fr", "pt", "it", "es", "de", "ro", "la"):
-        match = re.search(
+        matches = re.findall(
             rf"Object\.assign\(translations\.{locale},\{{(.*?)\}}\);",
             source,
             re.DOTALL,
         )
-        assert match, f"missing complete translation extension for {locale}"
-        keys = set(re.findall(r'"([^"]+)"\s*:', match.group(1)))
+        assert matches, f"missing complete translation extension for {locale}"
+        keys = {
+            key
+            for translation_block in matches
+            for key in re.findall(r'"([^"]+)"\s*:', translation_block)
+        }
         assert required <= keys, f"missing {sorted(required - keys)} for {locale}"
