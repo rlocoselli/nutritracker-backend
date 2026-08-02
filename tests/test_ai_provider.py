@@ -8,6 +8,7 @@ from app import (
     get_ai_provider,
     get_missing_env_vars,
     invoke_ai,
+    verify_access_token,
 )
 
 
@@ -153,6 +154,56 @@ class ApiCompatibilityTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 502)
         self.assertEqual(response.get_json(), {"error": "model_request_failed"})
+
+    @patch("app.verify_access_token")
+    def test_current_user_returns_verified_profile(self, verify_token):
+        verify_token.return_value = {
+            "sub": "user-123",
+            "email": "alex@example.com",
+            "name": "Alex",
+            "auth_provider": "google",
+        }
+
+        response = self.client.get(
+            "/api/me", headers={"Authorization": "Bearer token"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["user"]["id"], "user-123")
+        self.assertEqual(response.get_json()["user"]["auth_provider"], "google")
+
+    def test_current_user_requires_bearer_token(self):
+        response = self.client.get("/api/me")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.get_json(), {"error": "missing_bearer_token"})
+
+
+class MobileAuthenticationTests(unittest.TestCase):
+    @patch("app.requests.post")
+    @patch("app.verify_google_id_token", side_effect=ValueError("not google"))
+    def test_mobile_token_uses_configured_server_verifier(self, google_verify, post):
+        post.return_value.json.return_value = {
+            "active": True,
+            "user_id": "mobile-42",
+            "name": "Mobile User",
+        }
+        post.return_value.raise_for_status.return_value = None
+
+        with patch.dict(
+            os.environ,
+            {"MOBILE_AUTH_VERIFY_URL": "https://auth.example/introspect"},
+            clear=True,
+        ):
+            identity = verify_access_token("mobile-token")
+
+        self.assertEqual(identity["sub"], "mobile-42")
+        self.assertEqual(identity["auth_provider"], "mobile")
+        post.assert_called_once_with(
+            "https://auth.example/introspect",
+            headers={"Authorization": "Bearer mobile-token"},
+            timeout=10,
+        )
 
 
 if __name__ == "__main__":

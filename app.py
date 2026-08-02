@@ -271,6 +271,48 @@ def verify_google_id_token(token: str) -> dict:
     return payload
 
 
+def verify_access_token(token: str) -> dict:
+    """Accept a Google ID token or a token issued by the companion mobile app.
+
+    Mobile tokens are verified server-to-server by the URL configured in
+    MOBILE_AUTH_VERIFY_URL. The verifier must return JSON containing an active
+    user identifier in ``sub`` (or ``user_id``).
+    """
+    try:
+        payload = verify_google_id_token(token)
+        return {**payload, "auth_provider": "google"}
+    except Exception as google_error:
+        verify_url = os.environ.get("MOBILE_AUTH_VERIFY_URL")
+        if not verify_url:
+            raise google_error
+
+    response = requests.post(
+        verify_url,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=10,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    subject = payload.get("sub") or payload.get("user_id")
+    if payload.get("active", True) is not True or not subject:
+        raise ValueError("inactive_or_invalid_mobile_token")
+    return {
+        **payload,
+        "sub": str(subject),
+        "auth_provider": payload.get("auth_provider", "mobile"),
+    }
+
+
+def authenticate_request() -> tuple[dict | None, tuple | None]:
+    token = get_bearer_token()
+    if not token:
+        return None, (jsonify({"error": "missing_bearer_token"}), 401)
+    try:
+        return verify_access_token(token), None
+    except Exception:
+        return None, (jsonify({"error": "invalid_access_token"}), 401)
+
+
 def safe_json_loads(s: str):
     try:
         return json.loads(s)
@@ -351,7 +393,7 @@ Schema obrigatório:
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", google_client_id=os.environ.get("GOOGLE_CLIENT_ID"))
 
 
 @app.get("/app-ads.txt")
@@ -396,6 +438,7 @@ def openapi_spec():
         "servers": [{"url": "/", "description": "Current server"}],
         "tags": [
             {"name": "System"},
+            {"name": "Account"},
             {"name": "Nutrition"},
         ],
         "components": {
@@ -404,7 +447,7 @@ def openapi_spec():
                     "type": "http",
                     "scheme": "bearer",
                     "bearerFormat": "JWT",
-                    "description": "Google ID token in Authorization header: Bearer <token>",
+                    "description": "Google ID token or registered-mobile access token: Bearer <token>",
                 }
             }
         },
@@ -441,6 +484,33 @@ def openapi_spec():
                         "503": {
                             "description": "Database not configured or not reachable",
                         },
+                    },
+                }
+            },
+            "/api/me": {
+                "get": {
+                    "tags": ["Account"],
+                    "summary": "Get the verified current account",
+                    "security": [{"bearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "Minimal verified profile"},
+                        "401": {"description": "Missing or invalid access token"},
+                    },
+                }
+            },
+            "/api/me/history": {
+                "get": {
+                    "tags": ["Account"],
+                    "summary": "Retrieve saved meals and recommendations",
+                    "security": [{"bearerAuth": []}],
+                    "parameters": [{
+                        "name": "limit", "in": "query", "required": False,
+                        "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
+                    }],
+                    "responses": {
+                        "200": {"description": "Account history, newest first"},
+                        "401": {"description": "Missing or invalid access token"},
+                        "503": {"description": "Database not configured"},
                     },
                 }
             },
@@ -596,21 +666,72 @@ def health_db():
     return jsonify({"ok": True, "database": "connected"})
 
 
+@app.get("/api/me")
+def current_user():
+    identity, error = authenticate_request()
+    if error:
+        return error
+    return jsonify({
+        "user": {
+            "id": identity["sub"],
+            "name": identity.get("name"),
+            "email": identity.get("email"),
+            "picture": identity.get("picture"),
+            "auth_provider": identity.get("auth_provider"),
+        }
+    })
+
+
+@app.get("/api/me/history")
+def current_user_history():
+    identity, error = authenticate_request()
+    if error:
+        return error
+    if DbSessionLocal is None:
+        return jsonify({"error": "database_not_configured"}), 503
+
+    limit = min(max(request.args.get("limit", default=20, type=int) or 20, 1), 100)
+    with DbSessionLocal() as session:
+        user = session.query(User).filter(User.google_sub == identity["sub"]).first()
+        if not user:
+            return jsonify({"meals": [], "recommendations": [], "count": 0})
+        meals = (
+            session.query(MealAnalysis)
+            .filter(MealAnalysis.user_id == user.id)
+            .order_by(MealAnalysis.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+        recommendations = (
+            session.query(RecommendationRecord)
+            .filter(RecommendationRecord.user_id == user.id)
+            .order_by(RecommendationRecord.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+        return jsonify({
+            "meals": [
+                {"id": item.id, "language": item.language, "created_at": item.created_at.isoformat(), "data": item.payload}
+                for item in meals
+            ],
+            "recommendations": [
+                {"id": item.id, "created_at": item.created_at.isoformat(), "data": item.payload}
+                for item in recommendations
+            ],
+            "count": len(meals) + len(recommendations),
+        })
+
+
 @app.post("/api/analyze-meal")
 def analyze_meal():
     missing_env_vars = get_missing_env_vars()
     if missing_env_vars:
         return jsonify({"error": "server_not_configured", "missing_env_vars": missing_env_vars}), 503
 
-    token = get_bearer_token()
-    if not token:
-        return jsonify({"error": "missing_bearer_token"}), 401
-
-    try:
-        g = verify_google_id_token(token)
-        user_id = g["sub"]
-    except Exception:
-        return jsonify({"error": "invalid_google_token"}), 401
+    identity, error = authenticate_request()
+    if error:
+        return error
+    user_id = identity["sub"]
 
     # Accept JSON (text only) or multipart (text + optional image)
     if request.is_json:
@@ -670,15 +791,10 @@ def recommendations():
     if missing_env_vars:
         return jsonify({"error": "server_not_configured", "missing_env_vars": missing_env_vars}), 503
 
-    token = get_bearer_token()
-    if not token:
-        return jsonify({"error": "missing_bearer_token"}), 401
-
-    try:
-        g = verify_google_id_token(token)
-        user_id = g["sub"]
-    except Exception:
-        return jsonify({"error": "invalid_google_token"}), 401
+    identity, error = authenticate_request()
+    if error:
+        return error
+    user_id = identity["sub"]
 
     payload = request.get_json(silent=True) or {}
 

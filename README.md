@@ -16,6 +16,8 @@
 ## Endpoints
 - `GET /api/health`
 - `GET /api/health/db` (checks PostgreSQL connectivity)
+- `GET /api/me` (verified Google or mobile account profile)
+- `GET /api/me/history?limit=20` (saved meal analyses and recommendations)
 - `POST /api/analyze-meal`
   - JSON: `{ "lang": "pt", "text": "comi 2 ovos" }`
   - or multipart form-data: fields `lang`, `text` and file `image`
@@ -29,6 +31,7 @@
 - `MISTRAL_MODEL` (optional, default: `mistral-small-latest`)
 - `OPENAI_API_KEY` (fallback provider)
 - `GOOGLE_CLIENT_ID` (required) Web OAuth client id
+- `MOBILE_AUTH_VERIFY_URL` (optional) trusted server endpoint that validates a registered mobile user's bearer token and returns an active `sub` or `user_id`
 - `OPENAI_MODEL` (optional, default: `gpt-4.1-mini`)
 - `DB_HOST` (required for DB connection)
 - `DB_USER` (required for DB connection)
