@@ -33,7 +33,7 @@
 ## Environment variables
 - `MISTRAL_API_KEY` (preferred primary provider)
 - `GEMINI_API_KEY` (preferred primary provider, fallback to Mistral then OpenAI)
-- `GEMINI_MODEL` (optional, default: `gemini-2.5-flash-lite`)
+- `GEMINI_MODEL` (optional, default: `gemini-3.5-flash-lite`)
 - `MISTRAL_MODEL` (optional, default: `mistral-small-latest`)
 - `OPENAI_API_KEY` (fallback provider)
 - `GOOGLE_CLIENT_ID` (required) Web OAuth client id

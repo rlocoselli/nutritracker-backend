@@ -216,7 +216,7 @@ def get_ai_provider() -> dict | None:
         return {
             "provider": "gemini",
             "api_key": os.environ.get("GEMINI_API_KEY"),
-            "model": os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite"),
+            "model": os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite"),
         }
 
     if os.environ.get("MISTRAL_API_KEY"):
@@ -331,7 +331,7 @@ def call_ai_provider(provider: dict, messages: list[dict], temperature: float) -
 def invoke_ai(messages: list[dict], temperature: float) -> str:
     providers = []
     if os.environ.get("GEMINI_API_KEY"):
-        providers.append({"provider": "gemini", "api_key": os.environ["GEMINI_API_KEY"], "model": os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")})
+        providers.append({"provider": "gemini", "api_key": os.environ["GEMINI_API_KEY"], "model": os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")})
     if os.environ.get("MISTRAL_API_KEY"):
         providers.append({"provider": "mistral", "api_key": os.environ["MISTRAL_API_KEY"], "model": os.environ.get("MISTRAL_MODEL", "mistral-small-latest"), "base_url": "https://api.mistral.ai/v1/chat/completions"})
     if os.environ.get("OPENAI_API_KEY"):
