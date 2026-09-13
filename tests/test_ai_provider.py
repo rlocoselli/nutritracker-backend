@@ -68,7 +68,7 @@ class AiProviderTests(unittest.TestCase):
         self.assertEqual(sent_payload["response_format"], {"type": "json_object"})
 
     @patch("app.call_ai_provider")
-    def test_mistral_failure_falls_back_to_openai_transparently(self, call_provider):
+    def test_mistral_failure_does_not_fall_back_to_openai(self, call_provider):
         call_provider.side_effect = [RuntimeError("mistral unavailable"), '{"ok":true}']
 
         with patch.dict(
@@ -76,12 +76,11 @@ class AiProviderTests(unittest.TestCase):
             {"MISTRAL_API_KEY": "mistral-key", "OPENAI_API_KEY": "openai-key"},
             clear=True,
         ):
-            result = invoke_ai([{"role": "user", "content": "json"}], 0.2)
+            with self.assertRaisesRegex(RuntimeError, "mistral unavailable"):
+                invoke_ai([{"role": "user", "content": "json"}], 0.2)
 
-        self.assertEqual(result, '{"ok":true}')
-        self.assertEqual(call_provider.call_count, 2)
+        self.assertEqual(call_provider.call_count, 1)
         self.assertEqual(call_provider.call_args_list[0].args[0]["provider"], "mistral")
-        self.assertEqual(call_provider.call_args_list[1].args[0]["provider"], "openai")
 
 
 class ApiCompatibilityTests(unittest.TestCase):

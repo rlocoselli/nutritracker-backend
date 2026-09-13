@@ -269,22 +269,6 @@ def invoke_ai(messages: list[dict], temperature: float) -> str:
     if provider is None:
         raise RuntimeError("no_ai_provider_configured")
 
-    if provider["provider"] == "mistral":
-        try:
-            return call_ai_provider(provider, messages, temperature)
-        except Exception:
-            fallback_provider = None
-            if os.environ.get("OPENAI_API_KEY"):
-                fallback_provider = {
-                    "provider": "openai",
-                    "api_key": os.environ.get("OPENAI_API_KEY"),
-                    "model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
-                    "base_url": "https://api.openai.com/v1/chat/completions",
-                }
-            if fallback_provider is None:
-                raise
-            return call_ai_provider(fallback_provider, messages, temperature)
-
     return call_ai_provider(provider, messages, temperature)
 
 
