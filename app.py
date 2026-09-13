@@ -85,7 +85,7 @@ class AIError(Base):
 
 def get_missing_env_vars() -> list[str]:
     missing = []
-    if not os.environ.get("MISTRAL_API_KEY") and not os.environ.get("OPENAI_API_KEY"):
+    if not any(os.environ.get(name) for name in ("GEMINI_API_KEY", "MISTRAL_API_KEY", "OPENAI_API_KEY")):
         # Keep the public API's historical configuration error stable. Mistral is
         # an internal provider option; API clients should not need to know about it.
         missing.append("OPENAI_API_KEY")
@@ -212,6 +212,13 @@ def save_recommendation(google_sub: str, payload: dict) -> None:
 
 
 def get_ai_provider() -> dict | None:
+    if os.environ.get("GEMINI_API_KEY"):
+        return {
+            "provider": "gemini",
+            "api_key": os.environ.get("GEMINI_API_KEY"),
+            "model": os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite"),
+        }
+
     if os.environ.get("MISTRAL_API_KEY"):
         return {
             "provider": "mistral",
@@ -231,7 +238,64 @@ def get_ai_provider() -> dict | None:
     return None
 
 
+def call_gemini_provider(provider: dict, messages: list[dict], temperature: float) -> str:
+    system_messages = [item["content"] for item in messages if item["role"] == "system"]
+    contents = []
+    for message in messages:
+        if message["role"] == "system":
+            continue
+        parts = []
+        content = message["content"]
+        if isinstance(content, str):
+            parts.append({"text": content})
+        else:
+            for item in content:
+                if item["type"] == "text":
+                    parts.append({"text": item["text"]})
+                elif item["type"] == "image_url":
+                    image_url = item["image_url"]["url"]
+                    header, encoded = image_url.split(",", 1)
+                    parts.append({
+                        "inline_data": {
+                            "mime_type": header.removeprefix("data:" ).removesuffix(";base64"),
+                            "data": encoded,
+                        }
+                    })
+        contents.append({"role": "user" if message["role"] == "user" else "model", "parts": parts})
+
+    payload = {
+        "contents": contents,
+        "generationConfig": {
+            "temperature": temperature,
+            "responseMimeType": "application/json",
+        },
+    }
+    if system_messages:
+        payload["systemInstruction"] = {"parts": [{"text": "\n\n".join(system_messages)}]}
+
+    response = requests.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{provider['model']}:generateContent",
+        headers={"Content-Type": "application/json", "x-goog-api-key": provider["api_key"]},
+        json=payload,
+        timeout=90,
+    )
+    if response.status_code >= 400:
+        raise requests.HTTPError(
+            f"HTTP {response.status_code} from gemini; response_body={response.text[:3000]}",
+            response=response,
+        )
+    response.raise_for_status()
+    data = response.json()
+    return "".join(
+        part.get("text", "")
+        for part in data["candidates"][0]["content"]["parts"]
+    )
+
+
 def call_ai_provider(provider: dict, messages: list[dict], temperature: float) -> str:
+    if provider["provider"] == "gemini":
+        return call_gemini_provider(provider, messages, temperature)
+
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {provider['api_key']}",
@@ -265,11 +329,22 @@ def call_ai_provider(provider: dict, messages: list[dict], temperature: float) -
 
 
 def invoke_ai(messages: list[dict], temperature: float) -> str:
-    provider = get_ai_provider()
-    if provider is None:
+    providers = []
+    if os.environ.get("GEMINI_API_KEY"):
+        providers.append({"provider": "gemini", "api_key": os.environ["GEMINI_API_KEY"], "model": os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite")})
+    if os.environ.get("MISTRAL_API_KEY"):
+        providers.append({"provider": "mistral", "api_key": os.environ["MISTRAL_API_KEY"], "model": os.environ.get("MISTRAL_MODEL", "mistral-small-latest"), "base_url": "https://api.mistral.ai/v1/chat/completions"})
+    if os.environ.get("OPENAI_API_KEY"):
+        providers.append({"provider": "openai", "api_key": os.environ["OPENAI_API_KEY"], "model": os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"), "base_url": "https://api.openai.com/v1/chat/completions"})
+    if not providers:
         raise RuntimeError("no_ai_provider_configured")
-
-    return call_ai_provider(provider, messages, temperature)
+    errors = []
+    for provider in providers:
+        try:
+            return call_ai_provider(provider, messages, temperature)
+        except Exception as error:
+            errors.append(f"{provider['provider']}: {error}")
+    raise RuntimeError("all_ai_providers_failed: " + " | ".join(errors))
 
 
 def save_ai_error(endpoint: str, error: Exception, user_id: str | None = None) -> None:

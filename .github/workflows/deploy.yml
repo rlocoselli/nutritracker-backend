@@ -61,6 +61,8 @@ jobs:
             git reset --hard "origin/${{ github.ref_name }}"
 
             {
+              echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+              echo "GEMINI_MODEL=${{ secrets.GEMINI_MODEL || 'gemini-2.5-flash-lite' }}"
               echo "MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }}"
               echo "MISTRAL_MODEL=${{ secrets.MISTRAL_MODEL || 'mistral-small-latest' }}"
               echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
@@ -88,7 +90,7 @@ jobs:
               fi
             done
 
-            if ! grep -qE '^(MISTRAL_API_KEY|OPENAI_API_KEY)=.+' .env; then
+            if ! grep -qE '^(GEMINI_API_KEY|MISTRAL_API_KEY|OPENAI_API_KEY)=.+' .env; then
               echo "❌ At least one AI provider key must be configured"
               exit 1
             fi

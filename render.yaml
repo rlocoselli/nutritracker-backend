@@ -7,6 +7,10 @@ services:
     startCommand: gunicorn app:app
     autoDeploy: true
     envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash-lite
       - key: MISTRAL_API_KEY
         sync: false
       - key: MISTRAL_MODEL
