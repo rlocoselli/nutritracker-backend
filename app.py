@@ -3,6 +3,7 @@ import json
 import base64
 import mimetypes
 import traceback
+import uuid
 from datetime import date, datetime, timedelta, timezone
 
 import requests
@@ -10,6 +11,7 @@ from flask import Flask, request, jsonify, render_template, send_from_directory,
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, create_engine, text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship, sessionmaker
 
@@ -37,7 +39,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     google_sub: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
@@ -49,7 +51,7 @@ class MealAnalysis(Base):
     __tablename__ = "meal_analyses"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     language: Mapped[str] = mapped_column(String(16), nullable=False, default="pt")
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
@@ -61,7 +63,7 @@ class RecommendationRecord(Base):
     __tablename__ = "recommendations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
