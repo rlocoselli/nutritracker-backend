@@ -293,7 +293,7 @@ def call_gemini_provider(provider: dict, messages: list[dict], temperature: floa
 
 
 def call_ai_provider(provider: dict, messages: list[dict], temperature: float) -> str:
-    if provider["provider"] == "gemini":
+    if provider.get("provider") == "gemini":
         return call_gemini_provider(provider, messages, temperature)
 
     headers = {
