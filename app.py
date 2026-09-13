@@ -2,6 +2,7 @@ import os
 import json
 import base64
 import mimetypes
+import traceback
 from datetime import date, datetime, timedelta, timezone
 
 import requests
@@ -65,6 +66,19 @@ class RecommendationRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
     user: Mapped[User] = relationship(back_populates="recommendations")
+
+
+class AIError(Base):
+    __tablename__ = "ai_errors"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    endpoint: Mapped[str] = mapped_column(String(128), nullable=False)
+    user_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    provider: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    error_type: Mapped[str] = mapped_column(String(255), nullable=False)
+    error_message: Mapped[str] = mapped_column(String(4000), nullable=False)
+    traceback_text: Mapped[str | None] = mapped_column(String(12000), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
 
 def get_missing_env_vars() -> list[str]:
@@ -255,6 +269,28 @@ def invoke_ai(messages: list[dict], temperature: float) -> str:
             return call_ai_provider(fallback_provider, messages, temperature)
 
     return call_ai_provider(provider, messages, temperature)
+
+
+def save_ai_error(endpoint: str, error: Exception, user_id: str | None = None) -> None:
+    """Persist diagnostic AI failures without allowing logging to break the API."""
+    if DbSessionLocal is None:
+        return
+
+    provider = get_ai_provider()
+    try:
+        with DbSessionLocal() as session:
+            session.add(AIError(
+                endpoint=endpoint,
+                user_id=user_id,
+                provider=provider["provider"] if provider else None,
+                error_type=type(error).__name__,
+                error_message=str(error)[:4000] or repr(error)[:4000],
+                traceback_text=traceback.format_exc()[:12000],
+            ))
+            session.commit()
+    except Exception:
+        # Error persistence must never turn the original AI error into another API failure.
+        return
 
 
 def utc_now_iso() -> str:
@@ -985,8 +1021,9 @@ def analyze_meal():
             ],
             temperature=0.2,
         )
-    except Exception:
+    except Exception as error:
         # Provider names and transport details are intentionally kept internal.
+        save_ai_error("/api/analyze-meal", error, user_id)
         return jsonify({"error": "model_request_failed"}), 502
     parsed = safe_json_loads(raw)
     if parsed is None:
@@ -1025,8 +1062,9 @@ def recommendations():
             ],
             temperature=0.4,
         )
-    except Exception:
+    except Exception as error:
         # Keep the client-facing failure contract independent of the provider.
+        save_ai_error("/api/recommendations", error, user_id)
         return jsonify({"error": "model_request_failed"}), 502
     parsed = safe_json_loads(raw)
     if parsed is None:
