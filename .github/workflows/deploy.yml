@@ -102,7 +102,7 @@ jobs:
             fi
 
             echo "⏳ Applying database schema"
-            if ! docker compose exec -T nutritracker-backend python -c 'from app import Base, db_engine; Base.metadata.create_all(bind=db_engine) if db_engine is not None else (_ for _ in ()).throw(RuntimeError("database_not_initialized"))'; then
+            if ! docker compose exec -T nutritracker-backend python -c 'from app import Base, initialize_database, db_engine; ok, error = initialize_database(); print(f"database initialization: ok={ok}, error={error}"); from app import db_engine as initialized_engine; Base.metadata.create_all(bind=initialized_engine) if ok and initialized_engine is not None else (_ for _ in ()).throw(RuntimeError(error or "database_not_initialized"))'; then
               echo "❌ Database schema initialization failed. Showing diagnostics."
               docker compose -f docker-compose.yml ps || true
               docker compose -f docker-compose.yml logs --tail=300 nutritracker-backend || true
