@@ -110,6 +110,17 @@ jobs:
             fi
             echo "✅ Database schema is up to date"
 
+            echo "⏳ Applying database permissions"
+            if ! docker compose exec -T \
+              -e MIGRATION_ADMIN_USER="${{ secrets.DB_ADMIN_USER }}" \
+              -e MIGRATION_ADMIN_PASSWORD="${{ secrets.DB_ADMIN_PASSWORD }}" \
+              nutritracker-backend python -c 'import os, psycopg2; connection = psycopg2.connect(host=os.environ["DB_HOST"], user=os.environ["MIGRATION_ADMIN_USER"], password=os.environ["MIGRATION_ADMIN_PASSWORD"], dbname=os.environ["DB_NAME"], port=os.environ.get("DB_PORT", "5432")); connection.autocommit = True; cursor = connection.cursor(); cursor.execute("ALTER TABLE public.ai_errors OWNER TO nutri2"); cursor.execute("GRANT USAGE ON SCHEMA public TO nutri2"); cursor.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.ai_errors TO nutri2"); cursor.execute("GRANT USAGE, SELECT ON SEQUENCE public.ai_errors_id_seq TO nutri2"); cursor.close(); connection.close()'; then
+              echo "❌ Database permission migration failed."
+              docker compose -f docker-compose.yml logs --tail=300 nutritracker-backend || true
+              exit 1
+            fi
+            echo "✅ Database permissions are up to date"
+
             echo "⏳ Waiting for container state"
             for i in $(seq 1 60); do
               CONTAINER_STATE=$(docker inspect --format='{{.State.Status}}' nutritracker-backend 2>/dev/null || echo "missing")
