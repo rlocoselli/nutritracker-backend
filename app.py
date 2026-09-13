@@ -244,6 +244,21 @@ def call_ai_provider(provider: dict, messages: list[dict], temperature: float) -
     }
 
     response = requests.post(provider["base_url"], headers=headers, json=payload, timeout=90)
+    status_code = response.status_code
+    if isinstance(status_code, int) and status_code >= 400:
+        request_id = response.headers.get("x-request-id") or response.headers.get("mistral-request-id")
+        rate_headers = {
+            key: value
+            for key, value in response.headers.items()
+            if "rate" in key.lower() or "retry" in key.lower() or "request-id" in key.lower()
+        }
+        details = (
+            f"HTTP {response.status_code} from {provider['provider']}"
+            f"; request_id={request_id or 'n/a'}"
+            f"; rate_headers={rate_headers}"
+            f"; response_body={response.text[:3000]}"
+        )
+        raise requests.HTTPError(details, response=response)
     response.raise_for_status()
     data = response.json()
     return data["choices"][0]["message"]["content"] or ""
